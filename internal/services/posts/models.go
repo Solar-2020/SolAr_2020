@@ -5,7 +5,7 @@ import (
 )
 
 type postsStorage interface {
-	InsertPost(models.Post) (post models.Post, err error)
+	InsertPost(inputPost models.InputPost) (postID int, err error)
 }
 
 type fileStorage interface {

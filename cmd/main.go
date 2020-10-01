@@ -34,7 +34,7 @@ func main() {
 	db.SetMaxIdleConns(5)
 	db.SetMaxOpenConns(10)
 
-	fileStorage := fileStorage.NewStorage()
+	fileStorage := fileStorage.NewStorage(cfg.PhotoPath, cfg.FilePath, db)
 
 	postsStorage := postsStorage.NewStorage(db)
 	postsService := posts.NewService(postsStorage)

@@ -21,25 +21,45 @@ func NewTransport() Transport {
 	return &transport{}
 }
 
-func (t transport) CreateDecode(ctx *fasthttp.RequestCtx) (response models.InputPost, err error) {
+func (t transport) CreateDecode(ctx *fasthttp.RequestCtx) (request models.InputPost, err error) {
 	userID := ctx.Value("UserID").(int)
 
-	if err = json.Unmarshal(ctx.Request.Body(), &response); err != nil {
+	if err = json.Unmarshal(ctx.Request.Body(), &request); err != nil {
 		return
 	}
 
-	response.CreateBy = userID
+	request.CreateBy = userID
 	return
 }
 
 func (t transport) CreateEncode(response models.InputPost, ctx *fasthttp.RequestCtx) (err error) {
-	panic("implement me")
+	body, err := json.Marshal(response)
+	if err != nil {
+		return
+	}
+	ctx.Response.Header.SetContentType("application/json")
+	ctx.Response.Header.SetStatusCode(fasthttp.StatusOK)
+	ctx.SetBody(body)
+	return
 }
 
 func (t transport) GetListDecode(ctx *fasthttp.RequestCtx) (request models.GetPostListRequest, err error) {
-	panic("implement me")
+	//userID := ctx.Value("UserID").(int)
+	request.UserID = ctx.Value("UserID").(int)
+	request.GroupID = ctx.QueryArgs().GetUintOrZero("groupID")
+	request.Limit = ctx.QueryArgs().GetUintOrZero("limit")
+	request.StartFrom = ctx.QueryArgs().Peek("startFrom")
+
+	return
 }
 
 func (t transport) GetListEncode(response []models.InputPost, ctx *fasthttp.RequestCtx) (err error) {
-	panic("implement me")
+	body, err := json.Marshal(response)
+	if err != nil {
+		return
+	}
+	ctx.Response.Header.SetContentType("application/json")
+	ctx.Response.Header.SetStatusCode(fasthttp.StatusOK)
+	ctx.SetBody(body)
+	return
 }

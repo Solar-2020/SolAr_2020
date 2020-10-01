@@ -94,7 +94,7 @@ func (s *storage) InsertFile(file models.File) (fileID int, err error) {
 
 func (s *storage) InsertPhoto(photo models.Photo) (photoID int, err error) {
 	const sqlQuery = `
-	INSERT INTO photo (title, url)
+	INSERT INTO photos (title, url)
 	VALUES ($1, $2)
 	RETURNING id;`
 

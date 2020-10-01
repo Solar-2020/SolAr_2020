@@ -5,8 +5,8 @@ import (
 )
 
 type Service interface {
-	Create(request models.InputPost) (response models.InsertPost, err error)
-	GetList(request models.GetPostListRequest) (response []models.InsertPost, err error)
+	Create(request models.InputPost) (response models.Post, err error)
+	GetList(request models.GetPostListRequest) (response []models.Post, err error)
 }
 
 type service struct {
@@ -21,7 +21,7 @@ func NewService(postsStorage postsStorage, fileStorage fileStorage) Service {
 	}
 }
 
-func (s *service) Create(request models.InputPost) (response models.InsertPost, err error) {
+func (s *service) Create(request models.InputPost) (response models.Post, err error) {
 	if err = s.validateCreate(request); err != nil {
 		return
 	}
@@ -30,7 +30,14 @@ func (s *service) Create(request models.InputPost) (response models.InsertPost, 
 		return
 	}
 
-	s.fileStorage.SaveFiles(request.Files)
+	if err = s.checkFiles(request.GroupID, request.CreateBy); err != nil {
+		return
+	}
+
+	if err = s.checkPhotos(request.GroupID, request.CreateBy); err != nil {
+		return
+	}
+
 
 
 	response, err = s.postsStorage.InsertPost(request)

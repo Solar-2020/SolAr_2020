@@ -3,10 +3,10 @@ package models
 import "time"
 
 type GetPostListRequest struct {
-	userID    int
-	groupID   int
-	limit     int
-	startFrom time.Time
+	UserID    int
+	GroupID   int
+	Limit     int
+	StartFrom time.Time
 }
 
 type MainPost struct {
@@ -22,13 +22,31 @@ type MainPost struct {
 }
 
 type InputPost struct {
-	MainPost
-	Files       []WriteFile      `json:"upload"`
+	ID          int         `json:"id"`
+	CreateBy    int         `json:"-"`
+	CreatAt     time.Time   `json:"-"`
+	PublishDate time.Time   `json:"publishDate"`
+	GroupID     int         `json:"groupID"`
+	Text        string      `json:"text"`
+	Status      string      `json:"Status"`
+	Photos      []int       `json:"photos"`
+	Files       []int       `json:"files"`
+	Interviews  []Interview `json:"interviews"`
+	Payments    []Payment   `json:"payments"`
 }
 
-type InsertPost struct {
-	MainPost
-	Files       []File      `json:"upload"`
+type Post struct {
+	ID          int         `json:"id"`
+	CreateBy    int         `json:"-"`
+	CreatAt     time.Time   `json:"-"`
+	PublishDate time.Time   `json:"publishDate"`
+	GroupID     int         `json:"groupID"`
+	Text        string      `json:"text"`
+	Status      string      `json:"Status"`
+	Photos      []Photo     `json:"photos"`
+	Files       []File      `json:"files"`
+	Interviews  []Interview `json:"interviews"`
+	Payments    []Payment   `json:"payments"`
 }
 
 type Interview struct {
@@ -42,8 +60,6 @@ type Answer struct {
 	ID   int    `json:"id"`
 	Text string `json:"text"`
 }
-
-
 
 type Payment struct {
 	ID       int `json:"id"`
