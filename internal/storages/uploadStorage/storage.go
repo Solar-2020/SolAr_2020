@@ -4,6 +4,7 @@ import (
 	"crypto/md5"
 	"database/sql"
 	"errors"
+	"fmt"
 	"github.com/BarniBl/SolAr_2020/internal/models"
 	"os"
 	"strconv"
@@ -68,13 +69,17 @@ func (s *storage) SavePhoto(photo models.WritePhoto) (photoView models.Photo, er
 		return
 	}
 
-	filePath, err := s.createFilePath(photo.Name)
+	filePath, err := s.createFilePath(fileName)
 	if err != nil {
 		return
 	}
 
 	photoView.Name = fileName
 	photoView.URL = s.photoPath + "/" + filePath + "/" + fileName
+
+	if err = os.MkdirAll(s.photoPath+"/"+filePath, 0777); err != nil {
+		return
+	}
 
 	writeFile, err := os.Create(photoView.URL)
 	if err != nil {
@@ -83,6 +88,7 @@ func (s *storage) SavePhoto(photo models.WritePhoto) (photoView models.Photo, er
 	defer writeFile.Close()
 
 	_, err = writeFile.Write(photo.Body)
+
 	return
 }
 
@@ -107,25 +113,25 @@ func (s *storage) InsertPhoto(photo models.Photo) (photoID int, err error) {
 }
 
 func (s *storage) createFilePath(name string) (pathName string, err error) {
-	runes := []rune(name)
-	if len(runes) < 3 {
+	if len(name) < 3 {
 		return pathName, errors.New("Некорректное имя пути")
 	}
 
-	return string(runes[:2]), nil
+	return name[:2], nil
 }
 
 func (s *storage) createFileName(name string) (fileName string, err error) {
 	h := md5.New()
 	h.Write([]byte(time.Now().String() + name))
-	h.Sum(nil)
+
+	fileName = fmt.Sprintf("%x", h.Sum(nil))
 
 	postfix, err := s.extractFormatFile(name)
 	if err != nil {
 		return
 	}
 
-	return string(h.Sum(nil)) + "." + postfix, nil
+	return fileName + "." + postfix, nil
 }
 
 func (s *storage) extractFormatFile(fileName string) (postfix string, err error) {
