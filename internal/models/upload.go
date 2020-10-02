@@ -13,11 +13,13 @@ type Photo struct {
 }
 
 type WriteFile struct {
+	UserID int    `json:"-"`
 	Name string `json:"name"`
 	Body []byte `json:"-"`
 }
 
 type WritePhoto struct {
-	Name string `json:"name"`
-	Body []byte `json:"-"`
+	UserID int    `json:"-"`
+	Name   string `json:"name"`
+	Body   []byte `json:"-"`
 }

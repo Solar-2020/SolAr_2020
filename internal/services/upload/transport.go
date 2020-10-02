@@ -37,6 +37,8 @@ func (t transport) FileEncode(response models.File, ctx *fasthttp.RequestCtx) (e
 }
 
 func (t transport) PhotoDecode(ctx *fasthttp.RequestCtx) (request models.WritePhoto, err error) {
+	request.UserID = 1
+
 	form, err := ctx.MultipartForm()
 	if err != nil {
 		return
@@ -65,5 +67,12 @@ func (t transport) PhotoDecode(ctx *fasthttp.RequestCtx) (request models.WritePh
 }
 
 func (t transport) PhotoEncode(response models.Photo, ctx *fasthttp.RequestCtx) (err error) {
-	panic("implement me")
+	body, err := json.Marshal(response)
+	if err != nil {
+		return
+	}
+	ctx.Response.Header.SetContentType("application/json")
+	ctx.Response.Header.SetStatusCode(fasthttp.StatusOK)
+	ctx.SetBody(body)
+	return
 }

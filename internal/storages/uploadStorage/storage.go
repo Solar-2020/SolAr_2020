@@ -17,8 +17,8 @@ type Storage interface {
 	SavePhoto(file models.WritePhoto) (fileView models.Photo, err error)
 	//SaveFiles(files []models.WriteFile) (fileView []models.File, err error)
 
-	InsertFile(file models.File) (fileID int, err error)
-	InsertPhoto(photo models.Photo) (photoID int, err error)
+	InsertFile(file models.File, userID int) (fileID int, err error)
+	InsertPhoto(photo models.Photo, userID int) (photoID int, err error)
 
 	SelectCountFiles(fileIDs []int, userID int) (countFiles int, err error)
 	SelectCountPhotos(photoIDs []int, userID int) (countPhotos int, err error)
@@ -49,7 +49,7 @@ func (s *storage) SaveFile(file models.WriteFile) (fileView models.File, err err
 		return
 	}
 
-	fileView.Name = fileName
+	fileView.Name = file.Name
 	fileView.URL = s.filePath + "/" + filePath + "/" + fileName
 
 	writeFile, err := os.Create(fileView.URL)
@@ -73,8 +73,7 @@ func (s *storage) SavePhoto(photo models.WritePhoto) (photoView models.Photo, er
 	if err != nil {
 		return
 	}
-
-	photoView.Name = fileName
+	photoView.Name = photo.Name
 	photoView.URL = s.photoPath + "/" + filePath + "/" + fileName
 
 	if err = os.MkdirAll(s.photoPath+"/"+filePath, 0777); err != nil {
@@ -92,23 +91,23 @@ func (s *storage) SavePhoto(photo models.WritePhoto) (photoView models.Photo, er
 	return
 }
 
-func (s *storage) InsertFile(file models.File) (fileID int, err error) {
+func (s *storage) InsertFile(file models.File, userID int) (fileID int, err error) {
 	const sqlQuery = `
-	INSERT INTO files (title, url)
-	VALUES ($1, $2)
+	INSERT INTO files (title, url, user_id)
+	VALUES ($1, $2, $3)
 	RETURNING id;`
 
-	err = s.db.QueryRow(sqlQuery, file.Name, file.URL).Scan(&fileID)
+	err = s.db.QueryRow(sqlQuery, file.Name, file.URL, userID).Scan(&fileID)
 	return
 }
 
-func (s *storage) InsertPhoto(photo models.Photo) (photoID int, err error) {
+func (s *storage) InsertPhoto(photo models.Photo, userID int) (photoID int, err error) {
 	const sqlQuery = `
-	INSERT INTO photos (title, url)
-	VALUES ($1, $2)
+	INSERT INTO photos (title, url, user_id)
+	VALUES ($1, $2, $3)
 	RETURNING id;`
 
-	err = s.db.QueryRow(sqlQuery, photo.Name, photo.URL).Scan(&photoID)
+	err = s.db.QueryRow(sqlQuery, photo.Name, photo.URL, userID).Scan(&photoID)
 	return
 }
 

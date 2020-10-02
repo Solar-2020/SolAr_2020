@@ -25,18 +25,23 @@ func (s *service) File(request models.WriteFile) (response models.File, err erro
 		return
 	}
 
-	response.ID, err = s.uploadStorage.InsertFile(response)
+	response.ID, err = s.uploadStorage.InsertFile(response, request.UserID)
 
 	return
 }
 
 func (s *service) Photo(request models.WritePhoto) (response models.Photo, err error) {
-	response, err = s.uploadStorage.SavePhoto(request)
+	fileView, err := s.uploadStorage.SavePhoto(request)
 	if err != nil {
 		return
 	}
 
-	response.ID, err = s.uploadStorage.InsertPhoto(response)
+	fileView.ID, err = s.uploadStorage.InsertPhoto(fileView, request.UserID)
+	if err != nil {
+		return
+	}
+
+	response = fileView
 
 	return
 }
