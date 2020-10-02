@@ -9,10 +9,10 @@ import (
 
 type Transport interface {
 	CreateDecode(ctx *fasthttp.RequestCtx) (response models.InputPost, err error)
-	CreateEncode(response models.InputPost, ctx *fasthttp.RequestCtx) (err error)
+	CreateEncode(response models.Post, ctx *fasthttp.RequestCtx) (err error)
 
 	GetListDecode(ctx *fasthttp.RequestCtx) (request models.GetPostListRequest, err error)
-	GetListEncode(response []models.InputPost, ctx *fasthttp.RequestCtx) (err error)
+	GetListEncode(response []models.Post, ctx *fasthttp.RequestCtx) (err error)
 }
 
 type transport struct {
@@ -33,7 +33,7 @@ func (t transport) CreateDecode(ctx *fasthttp.RequestCtx) (request models.InputP
 	return
 }
 
-func (t transport) CreateEncode(response models.InputPost, ctx *fasthttp.RequestCtx) (err error) {
+func (t transport) CreateEncode(response models.Post, ctx *fasthttp.RequestCtx) (err error) {
 	body, err := json.Marshal(response)
 	if err != nil {
 		return
@@ -59,7 +59,7 @@ func (t transport) GetListDecode(ctx *fasthttp.RequestCtx) (request models.GetPo
 	return
 }
 
-func (t transport) GetListEncode(response []models.InputPost, ctx *fasthttp.RequestCtx) (err error) {
+func (t transport) GetListEncode(response []models.Post, ctx *fasthttp.RequestCtx) (err error) {
 	body, err := json.Marshal(response)
 	if err != nil {
 		return

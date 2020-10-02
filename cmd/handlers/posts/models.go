@@ -6,14 +6,14 @@ import (
 )
 
 type postService interface {
-	Create(request models.InputPost) (response models.InsertPost, err error)
-	GetList(request models.GetPostListRequest) (response []models.InsertPost, err error)
+	Create(request models.InputPost) (response models.Post, err error)
+	GetList(request models.GetPostListRequest) (response []models.Post, err error)
 }
 
 type postTransport interface {
 	CreateDecode(ctx *fasthttp.RequestCtx) (request models.InputPost, err error)
-	CreateEncode(response models.InsertPost, ctx *fasthttp.RequestCtx) (err error)
+	CreateEncode(response models.Post, ctx *fasthttp.RequestCtx) (err error)
 
 	GetListDecode(ctx *fasthttp.RequestCtx) (request models.GetPostListRequest, err error)
-	GetListEncode(response []models.InsertPost, ctx *fasthttp.RequestCtx) (err error)
+	GetListEncode(response []models.Post, ctx *fasthttp.RequestCtx) (err error)
 }

@@ -148,6 +148,7 @@ func (s *storage) insertPayments(tx *sql.Tx, payments []models.Payment, postID i
 
 	_, err = tx.Exec(sqlQuery, params)
 
+	return
 }
 
 func (s *storage) insertPhotos(tx *sql.Tx, photos []int, postID int) (err error) {

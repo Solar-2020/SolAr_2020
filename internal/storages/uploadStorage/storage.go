@@ -6,6 +6,7 @@ import (
 	"errors"
 	"github.com/BarniBl/SolAr_2020/internal/models"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -17,6 +18,9 @@ type Storage interface {
 
 	InsertFile(file models.File) (fileID int, err error)
 	InsertPhoto(photo models.Photo) (photoID int, err error)
+
+	SelectCountFiles(fileIDs []int, userID int) (countFiles int, err error)
+	SelectCountPhotos(photoIDs []int, userID int) (countPhotos int, err error)
 }
 
 type storage struct {
@@ -130,6 +134,63 @@ func (s *storage) extractFormatFile(fileName string) (postfix string, err error)
 		return postfix, errors.New("Некорректное имя файла")
 	}
 	postfix = parts[1]
+	return
+}
+
+func (s *storage) SelectCountFiles(fileIDs []int, userID int) (countFiles int, err error) {
+	const sqlQueryTemplate = `
+	SELECT count(*)
+	FROM upload.files AS f
+	WHERE f.user_id = ? AND f.id IN `
+
+	sqlQuery := sqlQueryTemplate + createIN(len(fileIDs))
+
+	var params []interface{}
+	params = append(params, userID)
+	for i, _ := range fileIDs {
+		params = append(params, fileIDs[i])
+	}
+
+	for i := 1; i <= len(fileIDs)*1+1; i++ {
+		sqlQuery = strings.Replace(sqlQuery, "?", "$"+strconv.Itoa(i), 1)
+	}
+
+	err = s.db.QueryRow(sqlQuery, params).Scan(&countFiles)
+
+	return
+}
+
+func (s *storage) SelectCountPhotos(photoIDs []int, userID int) (countPhotos int, err error) {
+	const sqlQueryTemplate = `
+	SELECT count(*)
+	FROM photos AS p
+	WHERE p.user_id = ? AND p.id IN `
+
+	sqlQuery := sqlQueryTemplate + createIN(len(photoIDs))
+
+	var params []interface{}
+	params = append(params, userID)
+	for i, _ := range photoIDs {
+		params = append(params, photoIDs[i])
+	}
+
+	for i := 1; i <= len(photoIDs)*1+1; i++ {
+		sqlQuery = strings.Replace(sqlQuery, "?", "$"+strconv.Itoa(i), 1)
+	}
+
+	err = s.db.QueryRow(sqlQuery, params).Scan(&countPhotos)
+
+	return
+}
+
+func createIN(count int) (queryIN string) {
+	queryIN = "("
+	for i := 0; i < count; i++ {
+		queryIN += "?, "
+	}
+	queryINRune := []rune(queryIN)
+	queryIN = string(queryINRune[:len(queryINRune)-2])
+	queryIN += ")"
 	return
 }
 

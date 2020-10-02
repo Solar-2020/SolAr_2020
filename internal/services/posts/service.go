@@ -11,14 +11,14 @@ type Service interface {
 }
 
 type service struct {
-	postsStorage postsStorage
-	fileStorage  fileStorage
+	postsStorage  postsStorage
+	uploadStorage uploadStorage
 }
 
-func NewService(postsStorage postsStorage, fileStorage fileStorage) Service {
+func NewService(postsStorage postsStorage, uploadStorage uploadStorage) Service {
 	return &service{
-		postsStorage: postsStorage,
-		fileStorage:  fileStorage,
+		postsStorage:  postsStorage,
+		uploadStorage: uploadStorage,
 	}
 }
 
@@ -72,7 +72,7 @@ func (s *service) checkGroup(groupID, userID int) (err error) {
 }
 
 func (s *service) checkFiles(fileIDs []int, userID int) (err error) {
-	countFiles, err := s.fileStorage.SelectCountFiles(fileIDs, userID)
+	countFiles, err := s.uploadStorage.SelectCountFiles(fileIDs, userID)
 	if err != nil {
 		return
 	}
@@ -85,7 +85,7 @@ func (s *service) checkFiles(fileIDs []int, userID int) (err error) {
 }
 
 func (s *service) checkPhotos(photoIDs []int, userID int) (err error) {
-	countFiles, err := s.fileStorage.SelectCountPhotos(photoIDs, userID)
+	countFiles, err := s.uploadStorage.SelectCountPhotos(photoIDs, userID)
 	if err != nil {
 		return
 	}
@@ -99,4 +99,5 @@ func (s *service) checkPhotos(photoIDs []int, userID int) (err error) {
 
 func (s *service) GetList(request models.GetPostListRequest) (response []models.Post, err error) {
 
+	return
 }

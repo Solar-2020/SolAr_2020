@@ -4,10 +4,13 @@ import (
 	"database/sql"
 	"github.com/BarniBl/SolAr_2020/cmd/handlers"
 	postsHandler "github.com/BarniBl/SolAr_2020/cmd/handlers/posts"
+	uploadHandler "github.com/BarniBl/SolAr_2020/cmd/handlers/upload"
 	"github.com/BarniBl/SolAr_2020/internal/services/posts"
-	fileStorage "github.com/BarniBl/SolAr_2020/internal/storages/uploadStorage"
+	"github.com/BarniBl/SolAr_2020/internal/services/upload"
 	"github.com/BarniBl/SolAr_2020/internal/storages/postsStorage"
+	"github.com/BarniBl/SolAr_2020/internal/storages/uploadStorage"
 	"github.com/kelseyhightower/envconfig"
+	_ "github.com/lib/pq"
 	"github.com/rs/zerolog"
 	"github.com/valyala/fasthttp"
 	"os"
@@ -25,19 +28,40 @@ func main() {
 		return
 	}
 
-	db, err := sql.Open("postgres", cfg.DataBaseConnectionString)
+	postsDB, err := sql.Open("postgres", cfg.PostsDataBaseConnectionString)
 	if err != nil {
 		log.Fatal().Msg(err.Error())
 		return
 	}
 
-	db.SetMaxIdleConns(5)
-	db.SetMaxOpenConns(10)
+	postsDB.SetMaxIdleConns(5)
+	postsDB.SetMaxOpenConns(10)
 
-	fileStorage := fileStorage.NewStorage(cfg.PhotoPath, cfg.FilePath, db)
+	uploadDB, err := sql.Open("postgres", cfg.UploadDataBaseConnectionString)
+	if err != nil {
+		log.Fatal().Msg(err.Error())
+		return
+	}
 
-	postsStorage := postsStorage.NewStorage(db)
-	postsService := posts.NewService(postsStorage)
+	postsDB.SetMaxIdleConns(5)
+	postsDB.SetMaxOpenConns(10)
+
+	//userDB, err := sql.Open("postgres", cfg.UserDataBaseConnectionString)
+	//if err != nil {
+	//	log.Fatal().Msg(err.Error())
+	//	return
+	//}
+
+	postsDB.SetMaxIdleConns(5)
+	postsDB.SetMaxOpenConns(10)
+
+	uploadStorage := uploadStorage.NewStorage(cfg.PhotoPath, cfg.FilePath, uploadDB)
+	uploadService := upload.NewService(uploadStorage)
+	uploadTransport := upload.NewTransport()
+	uploadHandler := uploadHandler.NewHandler(uploadService, uploadTransport)
+
+	postsStorage := postsStorage.NewStorage(postsDB)
+	postsService := posts.NewService(postsStorage, uploadStorage)
 	postsTransport := posts.NewTransport()
 
 	postsHandler := postsHandler.NewHandler(postsService, postsTransport)
@@ -45,7 +69,7 @@ func main() {
 	middlewares := handlers.NewMiddleware()
 
 	server := fasthttp.Server{
-		Handler: handlers.NewFastHttpRouter(postsHandler, middlewares).Handler,
+		Handler: handlers.NewFastHttpRouter(postsHandler, uploadHandler, middlewares).Handler,
 	}
 
 	go func() {
