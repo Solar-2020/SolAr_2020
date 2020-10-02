@@ -42,7 +42,7 @@ func (s *storage) InsertPost(inputPost models.InputPost) (postID int, err error)
 		return
 	}
 
-	err = s.insertPayments(tx, inputPost.Payments)
+	err = s.insertPayments(tx, inputPost.Payments, postID)
 	if err != nil {
 		return
 	}
@@ -129,10 +129,25 @@ func (s *storage) createInsertQuery(sliceLen int, structLen int) (query string) 
 	return
 }
 
-func (s *storage) insertPayments(tx *sql.Tx, payments []models.Payment) (err error) {
+func (s *storage) insertPayments(tx *sql.Tx, payments []models.Payment, postID int) (err error) {
 	sqlQueryTemplate := `
-	INSERT INTO photos(text)
+	INSERT INTO payments(post_id, cost, currency_id)
 	VALUES `
+
+	var params []interface{}
+
+	sqlQuery := sqlQueryTemplate + s.createInsertQuery(len(payments), 3) + queryReturningID
+
+	for i, _ := range payments {
+		params = append(params, postID, payments[i].Cost, payments[i].Currency)
+	}
+
+	for i := 1; i <= len(payments)*3; i++ {
+		sqlQuery = strings.Replace(sqlQuery, "?", "$"+strconv.Itoa(i), 1)
+	}
+
+	_, err = tx.Exec(sqlQuery, params)
+
 }
 
 func (s *storage) insertPhotos(tx *sql.Tx, photos []int, postID int) (err error) {

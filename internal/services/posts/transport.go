@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/BarniBl/SolAr_2020/internal/models"
 	"github.com/valyala/fasthttp"
+	"time"
 )
 
 type Transport interface {
@@ -48,7 +49,12 @@ func (t transport) GetListDecode(ctx *fasthttp.RequestCtx) (request models.GetPo
 	request.UserID = ctx.Value("UserID").(int)
 	request.GroupID = ctx.QueryArgs().GetUintOrZero("groupID")
 	request.Limit = ctx.QueryArgs().GetUintOrZero("limit")
-	request.StartFrom = ctx.QueryArgs().Peek("startFrom")
+
+	startFrom := string(ctx.QueryArgs().Peek("startFrom"))
+	request.StartFrom, err = time.Parse("2006-01-02", startFrom)
+	if err != nil {
+		return
+	}
 
 	return
 }

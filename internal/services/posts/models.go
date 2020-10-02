@@ -9,6 +9,6 @@ type postsStorage interface {
 }
 
 type fileStorage interface {
-	SaveFile(file models.WriteFile) (fileView models.File, err error)
-	SaveFiles(files []models.WriteFile) (fileView []models.File, err error)
+	SelectCountFiles(fileIDs []int, userID int) (countFiles int, err error)
+	SelectCountPhotos(photoIDs []int, userID int) (countFiles int, err error)
 }
