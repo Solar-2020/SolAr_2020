@@ -23,13 +23,16 @@ func NewTransport() Transport {
 }
 
 func (t transport) CreateDecode(ctx *fasthttp.RequestCtx) (request models.InputPost, err error) {
-	userID := ctx.Value("UserID").(int)
-
-	if err = json.Unmarshal(ctx.Request.Body(), &request); err != nil {
+	//userID := ctx.Value("UserID").(int)
+	userID := 1
+	var inputPost models.InputPost
+	err = json.Unmarshal(ctx.Request.Body(), &inputPost)
+	if err != nil {
 		return
 	}
-
-	request.CreateBy = userID
+	inputPost.PublishDate = time.Now()
+	inputPost.CreateBy = userID
+	request = inputPost
 	return
 }
 

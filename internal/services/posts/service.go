@@ -43,7 +43,7 @@ func (s *service) Create(request models.InputPost) (response models.Post, err er
 		}
 	}
 
-	request.ID, err = s.postsStorage.InsertPost(request)
+	response.ID, err = s.postsStorage.InsertPost(request)
 	return
 }
 

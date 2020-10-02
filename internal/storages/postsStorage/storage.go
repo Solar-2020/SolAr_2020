@@ -37,24 +37,33 @@ func (s *storage) InsertPost(inputPost models.InputPost) (postID int, err error)
 		return
 	}
 
-	err = s.insertInterviews(tx, inputPost.Interviews, postID)
-	if err != nil {
-		return
+
+	if len(inputPost.Interviews) != 0 {
+		err = s.insertInterviews(tx, inputPost.Interviews, postID)
+		if err != nil {
+			return
+		}
 	}
 
-	err = s.insertPayments(tx, inputPost.Payments, postID)
-	if err != nil {
-		return
+	if len(inputPost.Payments) != 0 {
+		err = s.insertPayments(tx, inputPost.Payments, postID)
+		if err != nil {
+			return
+		}
 	}
 
-	err = s.insertPhotos(tx, inputPost.Photos, postID)
-	if err != nil {
-		return
+	if len(inputPost.Photos) != 0 {
+		err = s.insertPhotos(tx, inputPost.Photos, postID)
+		if err != nil {
+			return
+		}
 	}
 
-	err = s.insertFiles(tx, inputPost.Files, postID)
-	if err != nil {
-		return
+	if len(inputPost.Files) != 0 {
+		err = s.insertFiles(tx, inputPost.Files, postID)
+		if err != nil {
+			return
+		}
 	}
 
 	err = tx.Commit()
@@ -86,7 +95,7 @@ func (s *storage) insertInterviews(tx *sql.Tx, interviews []models.Interview, po
 			return
 		}
 
-		err = s.insertAnswers(tx, interviews[i].Answers)
+		err = s.insertAnswers(tx, interviews[i].Answers, currentInterviewID)
 		if err != nil {
 			return
 		}
@@ -95,33 +104,36 @@ func (s *storage) insertInterviews(tx *sql.Tx, interviews []models.Interview, po
 	return
 }
 
-func (s *storage) insertAnswers(tx *sql.Tx, answers []models.Answer) (err error) {
+func (s *storage) insertAnswers(tx *sql.Tx, answers []models.Answer, interviewID int) (err error) {
 	sqlQueryTemplate := `
-	INSERT INTO interviews(text)
+	INSERT INTO answers(interview_id, text)
 	VALUES `
 
 	var params []interface{}
 
-	sqlQuery := sqlQueryTemplate + s.createInsertQuery(len(answers), 1) + queryReturningID
+	sqlQuery := sqlQueryTemplate + s.createInsertQuery(len(answers), 2)
 
 	for i, _ := range answers {
-		params = append(params, answers[i].Text)
+		params = append(params, interviewID, answers[i].Text)
 	}
 
-	for i := 1; i <= len(answers)*1; i++ {
+	for i := 1; i <= len(answers)*2; i++ {
 		sqlQuery = strings.Replace(sqlQuery, "?", "$"+strconv.Itoa(i), 1)
 	}
 
-	_, err = tx.Exec(sqlQuery, params)
+	_, err = tx.Exec(sqlQuery, params...)
 	return
 }
 
 func (s *storage) createInsertQuery(sliceLen int, structLen int) (query string) {
-	query = "("
+	query = ""
 	for i := 0; i < sliceLen; i++ {
+		query += "("
 		for j := 0; j < structLen; j++ {
 			query += "?,"
 		}
+		// delete last comma
+		query = string([]rune(query)[:len([]rune(query))-1])
 		query += "),"
 	}
 	// delete last comma
@@ -146,7 +158,7 @@ func (s *storage) insertPayments(tx *sql.Tx, payments []models.Payment, postID i
 		sqlQuery = strings.Replace(sqlQuery, "?", "$"+strconv.Itoa(i), 1)
 	}
 
-	_, err = tx.Exec(sqlQuery, params)
+	_, err = tx.Exec(sqlQuery, params...)
 
 	return
 }
@@ -168,7 +180,7 @@ func (s *storage) insertPhotos(tx *sql.Tx, photos []int, postID int) (err error)
 		sqlQuery = strings.Replace(sqlQuery, "?", "$"+strconv.Itoa(i), 1)
 	}
 
-	_, err = tx.Exec(sqlQuery, params)
+	_, err = tx.Exec(sqlQuery, params...)
 
 	return
 }
@@ -190,7 +202,7 @@ func (s *storage) insertFiles(tx *sql.Tx, files []int, postID int) (err error) {
 		sqlQuery = strings.Replace(sqlQuery, "?", "$"+strconv.Itoa(i), 1)
 	}
 
-	_, err = tx.Exec(sqlQuery, params)
+	_, err = tx.Exec(sqlQuery, params...)
 
 	return
 }
