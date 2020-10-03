@@ -208,37 +208,6 @@ func (s *storage) insertFiles(tx *sql.Tx, files []int, postID int) (err error) {
 }
 
 func (s *storage) SelectPosts(request models.GetPostListRequest) (posts []models.InputPost, err error) {
-	posts, err = s.selectPosts(request)
-	if err != nil {
-		return
-	}
-
-	for i, _ := range posts {
-		posts[i].Photos, err = s.selectPhotoIDs(posts[i].ID)
-		if err != nil {
-			return
-		}
-
-		posts[i].Files, err = s.selectFileIDs(posts[i].ID)
-		if err != nil {
-			return
-		}
-
-		posts[i].Interviews, err = s.selectInterviews(posts[i].ID)
-		if err != nil {
-			return
-		}
-
-		posts[i].Payments, err = s.selectPayments(posts[i].ID)
-		if err != nil {
-			return
-		}
-	}
-
-	return
-}
-
-func (s *storage) selectPosts(request models.GetPostListRequest) (posts []models.InputPost, err error) {
 	sqlQuery := `
 	SELECT p.id, p.text, p.group_id, p.publish_date
 	FROM posts.posts AS p
@@ -265,3 +234,4 @@ func (s *storage) selectPosts(request models.GetPostListRequest) (posts []models
 
 	return
 }
+

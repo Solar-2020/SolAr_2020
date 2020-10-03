@@ -15,13 +15,15 @@ import (
 type Storage interface {
 	SaveFile(file models.WriteFile) (fileView models.File, err error)
 	SavePhoto(file models.WritePhoto) (fileView models.Photo, err error)
-	//SaveFiles(files []models.WriteFile) (fileView []models.File, err error)
 
 	InsertFile(file models.File, userID int) (fileID int, err error)
 	InsertPhoto(photo models.Photo, userID int) (photoID int, err error)
 
 	SelectCountFiles(fileIDs []int, userID int) (countFiles int, err error)
 	SelectCountPhotos(photoIDs []int, userID int) (countPhotos int, err error)
+
+	SelectFiles(fileIDs []int) (files []models.File, err error)
+	SelectPhotos(photoIDs []int) (photos []models.Photo, err error)
 }
 
 type storage struct {
@@ -200,6 +202,78 @@ func createIN(count int) (queryIN string) {
 	queryINRune := []rune(queryIN)
 	queryIN = string(queryINRune[:len(queryINRune)-2])
 	queryIN += ")"
+	return
+}
+
+func (s *storage) SelectFiles(fileIDs []int) (files []models.File, err error) {
+	const sqlQueryTemplate = `
+	SELECT f.id, f.title, f.url
+	FROM files AS f
+	WHERE f.id IN `
+
+	sqlQuery := sqlQueryTemplate + createIN(len(fileIDs))
+
+	var params []interface{}
+
+	for i, _ := range fileIDs {
+		params = append(params, fileIDs[i])
+	}
+
+	for i := 1; i <= len(fileIDs)*1; i++ {
+		sqlQuery = strings.Replace(sqlQuery, "?", "$"+strconv.Itoa(i), 1)
+	}
+
+	rows, err := s.db.Query(sqlQuery, params...)
+	if err != nil {
+		return
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var tempFile models.File
+		err = rows.Scan(&tempFile.ID, &tempFile.Name, &tempFile.URL)
+		if err != nil {
+			return
+		}
+		files = append(files, tempFile)
+	}
+
+	return
+}
+
+func (s *storage) SelectPhotos(photoIDs []int) (photos []models.Photo, err error) {
+	const sqlQueryTemplate = `
+	SELECT p.id, p.title, p.url
+	FROM photos AS p
+	WHERE p.id IN `
+
+	sqlQuery := sqlQueryTemplate + createIN(len(photoIDs))
+
+	var params []interface{}
+
+	for i, _ := range photoIDs {
+		params = append(params, photoIDs[i])
+	}
+
+	for i := 1; i <= len(photoIDs)*1; i++ {
+		sqlQuery = strings.Replace(sqlQuery, "?", "$"+strconv.Itoa(i), 1)
+	}
+
+	rows, err := s.db.Query(sqlQuery, params...)
+	if err != nil {
+		return
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var tempPhoto models.Photo
+		err = rows.Scan(&tempPhoto.ID, &tempPhoto.Name, &tempPhoto.URL)
+		if err != nil {
+			return
+		}
+		photos = append(photos, tempPhoto)
+	}
+
 	return
 }
 
