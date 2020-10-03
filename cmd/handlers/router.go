@@ -11,11 +11,11 @@ func NewFastHttpRouter(posts postsHandler.Handler, upload uploadHandler.Handler,
 
 	//router.Handle("GET", "/health", check)
 
-	router.Handle("POST", "/posts/post", posts.Create)
-	router.Handle("GET", "/posts/posts", posts.GetList)
+	router.Handle("POST", "/api/posts/post", posts.Create)
+	router.Handle("GET", "/api/posts/posts", posts.GetList)
 
-	router.Handle("POST", "/upload/photo", upload.Photo)
-	router.Handle("POST", "/upload/file", upload.File)
+	router.Handle("POST", "/api/upload/photo", upload.Photo)
+	router.Handle("POST", "/api/upload/file", upload.File)
 
 	return router
 }
