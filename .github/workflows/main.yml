@@ -29,7 +29,7 @@ jobs:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.PRIVATE_KEY }}
-          script: sudo docker pull tamerlanchik/solar${GITHUB_REF##*/}:${GITHUB_SHA::8}
+          script: sudo docker pull 'tamerlanchik/solar${GITHUB_REF##*/}:${GITHUB_SHA::8}'
       - name: deploy docker image
         uses: appleboy/ssh-action@master
         with:
