@@ -2,13 +2,12 @@ package posts
 
 import (
 	"errors"
-	"fmt"
 	"github.com/BarniBl/SolAr_2020/internal/models"
 )
 
 type Service interface {
 	Create(request models.InputPost) (response models.Post, err error)
-	GetList(request models.GetPostListRequest) (response []models.Post, err error)
+	GetList(request models.GetPostListRequest) (response []models.InputPost, err error)
 }
 
 type service struct {
@@ -98,7 +97,7 @@ func (s *service) checkPhotos(photoIDs []int, userID int) (err error) {
 	return
 }
 
-func (s *service) GetList(request models.GetPostListRequest) (response []models.Post, err error) {
+func (s *service) GetList(request models.GetPostListRequest) (response []models.InputPost, err error) {
 	posts, err := s.postsStorage.SelectPosts(request)
 	if err != nil {
 		return
@@ -109,26 +108,28 @@ func (s *service) GetList(request models.GetPostListRequest) (response []models.
 		postIDs = append(postIDs, posts[i].ID)
 	}
 
-	interview, err := s.postsStorage.SelectInterviews(postIDs)
-	if err != nil {
-		return
-	}
+	response = posts
 
-	payments, err := s.postsStorage.SelectPayments(postIDs)
-	if err != nil {
-		return
-	}
-
-	files, err := s.uploadStorage.SelectFiles(postIDs)
-	if err != nil {
-		return
-	}
-
-	photos, err := s.uploadStorage.SelectPhotos(postIDs)
-	if err != nil {
-		return
-	}
-
-	fmt.Println(posts, interview, payments, files, photos)
+	//interview, err := s.postsStorage.SelectInterviews(postIDs)
+	//if err != nil {
+	//	return
+	//}
+	//
+	//payments, err := s.postsStorage.SelectPayments(postIDs)
+	//if err != nil {
+	//	return
+	//}
+	//
+	//files, err := s.uploadStorage.SelectFiles(postIDs)
+	//if err != nil {
+	//	return
+	//}
+	//
+	//photos, err := s.uploadStorage.SelectPhotos(postIDs)
+	//if err != nil {
+	//	return
+	//}
+	//
+	//fmt.Println(posts, interview, payments, files, photos)
 	return
 }
