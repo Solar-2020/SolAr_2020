@@ -13,6 +13,7 @@ const (
 
 type Storage interface {
 	InsertPost(inputPost models.InputPost) (postID int, err error)
+	SelectPosts(request models.GetPostListRequest) (posts models.InputPost, err error)
 }
 
 type storage struct {
@@ -36,7 +37,6 @@ func (s *storage) InsertPost(inputPost models.InputPost) (postID int, err error)
 	if err != nil {
 		return
 	}
-
 
 	if len(inputPost.Interviews) != 0 {
 		err = s.insertInterviews(tx, inputPost.Interviews, postID)
@@ -142,7 +142,7 @@ func (s *storage) createInsertQuery(sliceLen int, structLen int) (query string) 
 }
 
 func (s *storage) insertPayments(tx *sql.Tx, payments []models.Payment, postID int) (err error) {
-	sqlQueryTemplate := `
+	const sqlQueryTemplate = `
 	INSERT INTO payments(post_id, cost, currency_id)
 	VALUES `
 
@@ -164,13 +164,13 @@ func (s *storage) insertPayments(tx *sql.Tx, payments []models.Payment, postID i
 }
 
 func (s *storage) insertPhotos(tx *sql.Tx, photos []int, postID int) (err error) {
-	sqlQueryTemplate := `
+	const sqlQueryTemplate = `
 	INSERT INTO photos(post_id, photo_id)
 	VALUES `
 
 	var params []interface{}
 
-	sqlQuery := sqlQueryTemplate + s.createInsertQuery(len(photos), 2) + queryReturningID
+	sqlQuery := sqlQueryTemplate + s.createInsertQuery(len(photos), 2)
 
 	for i, _ := range photos {
 		params = append(params, postID, photos[i])
@@ -186,13 +186,13 @@ func (s *storage) insertPhotos(tx *sql.Tx, photos []int, postID int) (err error)
 }
 
 func (s *storage) insertFiles(tx *sql.Tx, files []int, postID int) (err error) {
-	sqlQueryTemplate := `
+	const sqlQueryTemplate = `
 	INSERT INTO files(post_id, file_id)
 	VALUES `
 
 	var params []interface{}
 
-	sqlQuery := sqlQueryTemplate + s.createInsertQuery(len(files), 2) + queryReturningID
+	sqlQuery := sqlQueryTemplate + s.createInsertQuery(len(files), 2)
 
 	for i, _ := range files {
 		params = append(params, postID, files[i])
@@ -206,3 +206,32 @@ func (s *storage) insertFiles(tx *sql.Tx, files []int, postID int) (err error) {
 
 	return
 }
+
+func (s *storage) SelectPosts(request models.GetPostListRequest) (posts []models.InputPost, err error) {
+	sqlQuery := `
+	SELECT p.id, p.text, p.group_id, p.publish_date
+	FROM posts.posts AS p
+	WHERE p.create_by = $1
+	  AND p.group_id = $2
+	  AND p.status_id = 1
+	  AND p.publish_date <= $3
+	LIMIT $4`
+
+	rows, err := s.db.Query(sqlQuery, request.UserID, request.GroupID, request.StartFrom, request.Limit)
+	if err != nil {
+		return
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var tempPost models.InputPost
+		err = rows.Scan(&tempPost.ID, &tempPost.Text, &tempPost.GroupID, &tempPost.PublishDate)
+		if err != nil {
+			return
+		}
+		posts = append(posts, tempPost)
+	}
+
+	return
+}
+

@@ -17,3 +17,8 @@ type postTransport interface {
 	GetListDecode(ctx *fasthttp.RequestCtx) (request models.GetPostListRequest, err error)
 	GetListEncode(response []models.Post, ctx *fasthttp.RequestCtx) (err error)
 }
+
+type errorWorker interface {
+	ServeJSONError(ctx *fasthttp.RequestCtx, serveError error) (err error)
+	ServeFatalError(ctx *fasthttp.RequestCtx)
+}
