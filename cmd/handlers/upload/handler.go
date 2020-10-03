@@ -12,31 +12,42 @@ type Handler interface {
 type handler struct {
 	uploadService   uploadService
 	uploadTransport uploadTransport
+	errorWorker     errorWorker
 }
 
-func NewHandler(uploadService uploadService, uploadTransport uploadTransport) Handler {
+func NewHandler(uploadService uploadService, uploadTransport uploadTransport, errorWorker errorWorker) Handler {
 	return &handler{
 		uploadService:   uploadService,
 		uploadTransport: uploadTransport,
+		errorWorker:     errorWorker,
 	}
 }
 
 func (h *handler) File(ctx *fasthttp.RequestCtx) {
 	request, err := h.uploadTransport.FileDecode(ctx)
 	if err != nil {
-
+		err = h.errorWorker.ServeJSONError(ctx, err)
+		if err != nil {
+			h.errorWorker.ServeFatalError(ctx)
+		}
 		return
 	}
 
 	response, err := h.uploadService.File(request)
 	if err != nil {
-
+		err = h.errorWorker.ServeJSONError(ctx, err)
+		if err != nil {
+			h.errorWorker.ServeFatalError(ctx)
+		}
 		return
 	}
 
 	err = h.uploadTransport.FileEncode(response, ctx)
 	if err != nil {
-
+		err = h.errorWorker.ServeJSONError(ctx, err)
+		if err != nil {
+			h.errorWorker.ServeFatalError(ctx)
+		}
 		return
 	}
 }
@@ -44,19 +55,28 @@ func (h *handler) File(ctx *fasthttp.RequestCtx) {
 func (h *handler) Photo(ctx *fasthttp.RequestCtx) {
 	request, err := h.uploadTransport.PhotoDecode(ctx)
 	if err != nil {
-
+		err = h.errorWorker.ServeJSONError(ctx, err)
+		if err != nil {
+			h.errorWorker.ServeFatalError(ctx)
+		}
 		return
 	}
 
 	response, err := h.uploadService.Photo(request)
 	if err != nil {
-
+		err = h.errorWorker.ServeJSONError(ctx, err)
+		if err != nil {
+			h.errorWorker.ServeFatalError(ctx)
+		}
 		return
 	}
 
 	err = h.uploadTransport.PhotoEncode(response, ctx)
 	if err != nil {
-
+		err = h.errorWorker.ServeJSONError(ctx, err)
+		if err != nil {
+			h.errorWorker.ServeFatalError(ctx)
+		}
 		return
 	}
 }

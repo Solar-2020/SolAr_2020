@@ -160,7 +160,7 @@ func (s *storage) SelectCountFiles(fileIDs []int, userID int) (countFiles int, e
 		sqlQuery = strings.Replace(sqlQuery, "?", "$"+strconv.Itoa(i), 1)
 	}
 
-	err = s.db.QueryRow(sqlQuery, params).Scan(&countFiles)
+	err = s.db.QueryRow(sqlQuery, params...).Scan(&countFiles)
 
 	return
 }
@@ -183,7 +183,7 @@ func (s *storage) SelectCountPhotos(photoIDs []int, userID int) (countPhotos int
 		sqlQuery = strings.Replace(sqlQuery, "?", "$"+strconv.Itoa(i), 1)
 	}
 
-	err = s.db.QueryRow(sqlQuery, params).Scan(&countPhotos)
+	err = s.db.QueryRow(sqlQuery, params...).Scan(&countPhotos)
 
 	return
 }

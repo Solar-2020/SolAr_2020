@@ -170,7 +170,7 @@ func (s *storage) insertPhotos(tx *sql.Tx, photos []int, postID int) (err error)
 
 	var params []interface{}
 
-	sqlQuery := sqlQueryTemplate + s.createInsertQuery(len(photos), 2) + queryReturningID
+	sqlQuery := sqlQueryTemplate + s.createInsertQuery(len(photos), 2)
 
 	for i, _ := range photos {
 		params = append(params, postID, photos[i])
@@ -192,7 +192,7 @@ func (s *storage) insertFiles(tx *sql.Tx, files []int, postID int) (err error) {
 
 	var params []interface{}
 
-	sqlQuery := sqlQueryTemplate + s.createInsertQuery(len(files), 2) + queryReturningID
+	sqlQuery := sqlQueryTemplate + s.createInsertQuery(len(files), 2)
 
 	for i, _ := range files {
 		params = append(params, postID, files[i])

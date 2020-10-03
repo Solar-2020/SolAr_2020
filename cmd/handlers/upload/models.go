@@ -17,3 +17,8 @@ type uploadTransport interface {
 	PhotoDecode(ctx *fasthttp.RequestCtx) (request models.WritePhoto, err error)
 	PhotoEncode(response models.Photo, ctx *fasthttp.RequestCtx) (err error)
 }
+
+type errorWorker interface {
+	ServeJSONError(ctx *fasthttp.RequestCtx, serveError error) (err error)
+	ServeFatalError(ctx *fasthttp.RequestCtx)
+}

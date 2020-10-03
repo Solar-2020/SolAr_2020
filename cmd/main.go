@@ -5,6 +5,7 @@ import (
 	"github.com/BarniBl/SolAr_2020/cmd/handlers"
 	postsHandler "github.com/BarniBl/SolAr_2020/cmd/handlers/posts"
 	uploadHandler "github.com/BarniBl/SolAr_2020/cmd/handlers/upload"
+	"github.com/BarniBl/SolAr_2020/internal/errorWorker"
 	"github.com/BarniBl/SolAr_2020/internal/services/posts"
 	"github.com/BarniBl/SolAr_2020/internal/services/upload"
 	"github.com/BarniBl/SolAr_2020/internal/storages/postsStorage"
@@ -52,19 +53,21 @@ func main() {
 	//	return
 	//}
 
-	postsDB.SetMaxIdleConns(5)
-	postsDB.SetMaxOpenConns(10)
+	//userDB.SetMaxIdleConns(5)
+	//userDB.SetMaxOpenConns(10)
+
+	errorWorker := errorWorker.NewErrorWorker()
 
 	uploadStorage := uploadStorage.NewStorage(cfg.PhotoPath, cfg.FilePath, uploadDB)
 	uploadService := upload.NewService(uploadStorage)
 	uploadTransport := upload.NewTransport()
-	uploadHandler := uploadHandler.NewHandler(uploadService, uploadTransport)
+	uploadHandler := uploadHandler.NewHandler(uploadService, uploadTransport, errorWorker)
 
 	postsStorage := postsStorage.NewStorage(postsDB)
 	postsService := posts.NewService(postsStorage, uploadStorage)
 	postsTransport := posts.NewTransport()
 
-	postsHandler := postsHandler.NewHandler(postsService, postsTransport)
+	postsHandler := postsHandler.NewHandler(postsService, postsTransport, errorWorker)
 
 	middlewares := handlers.NewMiddleware()
 
