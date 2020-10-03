@@ -2,6 +2,7 @@ package posts
 
 import (
 	"errors"
+	"fmt"
 	"github.com/BarniBl/SolAr_2020/internal/models"
 )
 
@@ -102,5 +103,6 @@ func (s *service) GetList(request models.GetPostListRequest) (response []models.
 	if err != nil {
 		return
 	}
+	fmt.Println(posts)
 	return
 }

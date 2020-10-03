@@ -13,7 +13,7 @@ const (
 
 type Storage interface {
 	InsertPost(inputPost models.InputPost) (postID int, err error)
-	SelectPosts(request models.GetPostListRequest) (posts models.InputPost, err error)
+	SelectPosts(request models.GetPostListRequest) (posts []models.InputPost, err error)
 }
 
 type storage struct {
