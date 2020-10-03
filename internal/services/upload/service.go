@@ -20,28 +20,33 @@ func NewService(uploadStorage uploadStorage) Service {
 }
 
 func (s *service) File(request models.WriteFile) (response models.File, err error) {
-	response, err = s.uploadStorage.SaveFile(request)
+	fileView, err := s.uploadStorage.SaveFile(request)
 	if err != nil {
 		return
 	}
 
-	response.ID, err = s.uploadStorage.InsertFile(response, request.UserID)
-
-	return
-}
-
-func (s *service) Photo(request models.WritePhoto) (response models.Photo, err error) {
-	fileView, err := s.uploadStorage.SavePhoto(request)
-	if err != nil {
-		return
-	}
-
-	fileView.ID, err = s.uploadStorage.InsertPhoto(fileView, request.UserID)
+	fileView.ID, err = s.uploadStorage.InsertFile(fileView, request.UserID)
 	if err != nil {
 		return
 	}
 
 	response = fileView
+
+	return
+}
+
+func (s *service) Photo(request models.WritePhoto) (response models.Photo, err error) {
+	photoView, err := s.uploadStorage.SavePhoto(request)
+	if err != nil {
+		return
+	}
+
+	photoView.ID, err = s.uploadStorage.InsertPhoto(photoView, request.UserID)
+	if err != nil {
+		return
+	}
+
+	response = photoView
 
 	return
 }

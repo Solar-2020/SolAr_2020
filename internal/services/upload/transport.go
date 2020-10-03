@@ -24,29 +24,16 @@ func NewTransport() Transport {
 func (t transport) FileDecode(ctx *fasthttp.RequestCtx) (request models.WriteFile, err error) {
 	request.UserID = 1
 
-	form, err := ctx.MultipartForm()
+	body := ctx.FormValue("body")
+
+	file := ctx.FormValue("file")
+
+	err = json.Unmarshal(body, &request)
 	if err != nil {
 		return
 	}
 
-	var tempBody string
-	body := form.Value["body"]
-	for i, _ := range body {
-		tempBody += body[i]
-	}
-
-	var tempFile string
-	file := form.Value["file"]
-	for i, _ := range file {
-		tempFile += file[i]
-	}
-
-	err = json.Unmarshal([]byte(tempBody), &request)
-	if err != nil {
-		return
-	}
-
-	request.Body = []byte(tempFile)
+	request.Body = file
 
 	return
 }
@@ -65,29 +52,16 @@ func (t transport) FileEncode(response models.File, ctx *fasthttp.RequestCtx) (e
 func (t transport) PhotoDecode(ctx *fasthttp.RequestCtx) (request models.WritePhoto, err error) {
 	request.UserID = 1
 
-	form, err := ctx.MultipartForm()
+	body := ctx.FormValue("body")
+
+	file := ctx.FormValue("file")
+
+	err = json.Unmarshal(body, &request)
 	if err != nil {
 		return
 	}
 
-	var tempBody string
-	body := form.Value["body"]
-	for i, _ := range body {
-		tempBody += body[i]
-	}
-
-	var tempFile string
-	file := form.Value["file"]
-	for i, _ := range file {
-		tempFile += file[i]
-	}
-
-	err = json.Unmarshal([]byte(tempBody), &request)
-	if err != nil {
-		return
-	}
-
-	request.Body = []byte(tempFile)
+	request.Body = file
 
 	return
 }
