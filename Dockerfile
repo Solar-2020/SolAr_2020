@@ -33,6 +33,9 @@ FROM alpine
 
 COPY --from=builder /dist/main /
 
+ENV POSTS_DB_CONNECTION_STRING=postgres://postgres:postgres@185.255.134.117:5432/posts?search_path=posts&sslmode=disable
+ENV UPLOAD_DB_CONNECTION_STRING=postgres://postgres:postgres@185.255.134.117:5432/upload?search_path=upload&sslmode=disable
+
 EXPOSE 8099
 
 # Command to run
