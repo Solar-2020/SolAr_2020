@@ -52,6 +52,10 @@ func (s *storage) SaveFile(file models.WriteFile) (fileView models.File, err err
 	fileView.Name = file.Name
 	fileView.URL = s.filePath + "/" + filePath + "/" + fileName
 
+	if err = os.MkdirAll(s.filePath+"/"+filePath, 0777); err != nil {
+		return
+	}
+
 	writeFile, err := os.Create(fileView.URL)
 	if err != nil {
 		return
@@ -120,15 +124,15 @@ func (s *storage) createFilePath(name string) (pathName string, err error) {
 }
 
 func (s *storage) createFileName(name string) (fileName string, err error) {
-	h := md5.New()
-	h.Write([]byte(time.Now().String() + name))
-
-	fileName = fmt.Sprintf("%x", h.Sum(nil))
-
 	postfix, err := s.extractFormatFile(name)
 	if err != nil {
 		return
 	}
+
+	h := md5.New()
+	h.Write([]byte(time.Now().String() + name))
+
+	fileName = fmt.Sprintf("%x", h.Sum(nil))
 
 	return fileName + "." + postfix, nil
 }

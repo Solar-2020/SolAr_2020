@@ -2,7 +2,6 @@ package upload
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/BarniBl/SolAr_2020/internal/models"
 	"github.com/valyala/fasthttp"
 )
@@ -23,17 +22,44 @@ func NewTransport() Transport {
 }
 
 func (t transport) FileDecode(ctx *fasthttp.RequestCtx) (request models.WriteFile, err error) {
+	request.UserID = 1
+
 	form, err := ctx.MultipartForm()
 	if err != nil {
 		return
 	}
-	fmt.Println(form)
-	//json.Unmarshal([]byte(form.Value["body"]),&request)
+
+	var tempBody string
+	body := form.Value["body"]
+	for i, _ := range body {
+		tempBody += body[i]
+	}
+
+	var tempFile string
+	file := form.Value["file"]
+	for i, _ := range file {
+		tempFile += file[i]
+	}
+
+	err = json.Unmarshal([]byte(tempBody), &request)
+	if err != nil {
+		return
+	}
+
+	request.Body = []byte(tempFile)
+
 	return
 }
 
 func (t transport) FileEncode(response models.File, ctx *fasthttp.RequestCtx) (err error) {
-	panic("implement me")
+	body, err := json.Marshal(response)
+	if err != nil {
+		return
+	}
+	ctx.Response.Header.SetContentType("application/json")
+	ctx.Response.Header.SetStatusCode(fasthttp.StatusOK)
+	ctx.SetBody(body)
+	return
 }
 
 func (t transport) PhotoDecode(ctx *fasthttp.RequestCtx) (request models.WritePhoto, err error) {
