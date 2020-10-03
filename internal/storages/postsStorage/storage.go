@@ -14,6 +14,8 @@ const (
 type Storage interface {
 	InsertPost(inputPost models.InputPost) (postID int, err error)
 	SelectPosts(request models.GetPostListRequest) (posts []models.InputPost, err error)
+	SelectPayments(postIDs []int) (payments []models.Payment, err error)
+	SelectInterviews(postIDs []int) (interviews []models.Interview, err error)
 }
 
 type storage struct {
@@ -235,3 +237,87 @@ func (s *storage) SelectPosts(request models.GetPostListRequest) (posts []models
 	return
 }
 
+func (s *storage) SelectInterviews(postIDs []int) (interviews []models.Interview, err error) {
+	const sqlQueryTemplate = `
+	SELECT i.id, i.text, i.type, i.post_id
+	FROM interview AS i
+	WHERE i.post_id IN `
+
+	sqlQuery := sqlQueryTemplate + createIN(len(postIDs))
+
+	var params []interface{}
+
+	for i, _ := range postIDs {
+		params = append(params, postIDs[i])
+	}
+
+	for i := 1; i <= len(postIDs)*1; i++ {
+		sqlQuery = strings.Replace(sqlQuery, "?", "$"+strconv.Itoa(i), 1)
+	}
+
+	rows, err := s.db.Query(sqlQuery, params...)
+	if err != nil {
+		return
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var tempInterview models.Interview
+		err = rows.Scan(&tempInterview.ID, &tempInterview.Text, &tempInterview.Type, &tempInterview.PostID)
+		if err != nil {
+			return
+		}
+		interviews = append(interviews, tempInterview)
+	}
+
+	// TODO SELECT ANSWERS
+
+	return
+}
+
+func (s *storage) SelectPayments(postIDs []int) (payments []models.Payment, err error) {
+	const sqlQueryTemplate = `
+	SELECT p.id, p.cost, p.currency_id, p.post_id
+	FROM payments AS p
+	WHERE i.post_id IN `
+
+	sqlQuery := sqlQueryTemplate + createIN(len(postIDs))
+
+	var params []interface{}
+
+	for i, _ := range postIDs {
+		params = append(params, postIDs[i])
+	}
+
+	for i := 1; i <= len(postIDs)*1; i++ {
+		sqlQuery = strings.Replace(sqlQuery, "?", "$"+strconv.Itoa(i), 1)
+	}
+
+	rows, err := s.db.Query(sqlQuery, params...)
+	if err != nil {
+		return
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var tempPayment models.Payment
+		err = rows.Scan(&tempPayment.ID, &tempPayment.Cost, &tempPayment.Currency, &tempPayment.PostID)
+		if err != nil {
+			return
+		}
+		payments = append(payments, tempPayment)
+	}
+
+	return
+}
+
+func createIN(count int) (queryIN string) {
+	queryIN = "("
+	for i := 0; i < count; i++ {
+		queryIN += "?, "
+	}
+	queryINRune := []rune(queryIN)
+	queryIN = string(queryINRune[:len(queryINRune)-2])
+	queryIN += ")"
+	return
+}

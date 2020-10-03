@@ -7,6 +7,10 @@ import (
 type postsStorage interface {
 	InsertPost(inputPost models.InputPost) (postID int, err error)
 	SelectPosts(request models.GetPostListRequest) (posts []models.InputPost, err error)
+
+	SelectPayments(postIDs []int) (payments []models.Payment, err error)
+
+	SelectInterviews(postIDs []int) (interviews []models.Interview, err error)
 }
 
 type uploadStorage interface {

@@ -53,6 +53,7 @@ type Interview struct {
 	ID      int      `json:"id"`
 	Text    string   `json:"text"`
 	Type    int      `json:"type"`
+	PostID  int      `json:"postID"`
 	Answers []Answer `json:"answers"`
 }
 
@@ -65,4 +66,5 @@ type Payment struct {
 	ID       int `json:"id"`
 	Cost     int `json:"cost"`
 	Currency int `json:"currency"`
+	PostID   int `json:"postID"`
 }
