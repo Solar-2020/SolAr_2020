@@ -6,6 +6,7 @@ import (
 
 type postsStorage interface {
 	InsertPost(inputPost models.InputPost) (postID int, err error)
+	SelectPosts(request models.GetPostListRequest) (posts models.InputPost, err error)
 }
 
 type uploadStorage interface {

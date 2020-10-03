@@ -98,6 +98,9 @@ func (s *service) checkPhotos(photoIDs []int, userID int) (err error) {
 }
 
 func (s *service) GetList(request models.GetPostListRequest) (response []models.Post, err error) {
-
+	posts, err := s.postsStorage.SelectPosts(request)
+	if err != nil {
+		return
+	}
 	return
 }
