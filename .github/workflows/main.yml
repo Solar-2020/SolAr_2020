@@ -25,19 +25,8 @@ jobs:
       - name: pull docker image
         uses: appleboy/ssh-action@master
         with:
-          envs: GITHUB_SHA
+          envs: GITHUB_SHA, GITHUB_REF
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.PRIVATE_KEY }}
-          script: sudo /opt/puppetlabs/bin/puppet apply /etc/puppetlabs/code/environments/production/manifests/site.pp
-#          script: sudo docker pull 'tamerlanchik/solar${GITHUB_REF##*/}:${GITHUB_SHA::8}'
-#      - name: deploy docker image
-#        uses: appleboy/ssh-action@master
-#        with:
-#          envs: GITHUB_SHA
-#          host: ${{ secrets.HOST }}
-#          username: ${{ secrets.USERNAME }}
-#          key: ${{ secrets.PRIVATE_KEY }}
-#          script: |
-#            sudo docker rm -f $(sudo docker ps -aq)
-#            sudo docker run -d -p 8080:8080 tamerlanchik/solar${GITHUB_REF##*/}:${GITHUB_SHA::8}
+          script: sudo /opt/puppetlabs/bin/puppet apply -t --tags gobackend::${GITHUB_REF##*/} /etc/puppetlabs/code/environments/production/manifests/site.pp; [[ "02" == *"${PIPESTATUS[0]}"* ]]
