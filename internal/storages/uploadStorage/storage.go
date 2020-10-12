@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/BarniBl/SolAr_2020/internal/models"
+	"io"
 	"os"
 	"strconv"
 	"strings"
@@ -64,9 +65,15 @@ func (s *storage) SaveFile(file models.WriteFile) (fileView models.File, err err
 	}
 	defer writeFile.Close()
 
-	_, err = writeFile.Write(file.Body)
-	return
+	readFile, err := file.File.Open()
+	if err != nil {
+		return
+	}
+	defer readFile.Close()
 
+	_, err = io.Copy(writeFile, readFile)
+
+	return
 }
 
 func (s *storage) SavePhoto(photo models.WritePhoto) (photoView models.Photo, err error) {
@@ -92,7 +99,13 @@ func (s *storage) SavePhoto(photo models.WritePhoto) (photoView models.Photo, er
 	}
 	defer writeFile.Close()
 
-	_, err = writeFile.Write(photo.Body)
+	readFile, err := photo.File.Open()
+	if err != nil {
+		return
+	}
+	defer readFile.Close()
+
+	_, err = io.Copy(writeFile, readFile)
 
 	return
 }

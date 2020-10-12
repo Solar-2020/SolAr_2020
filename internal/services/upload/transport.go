@@ -25,16 +25,17 @@ func (t transport) FileDecode(ctx *fasthttp.RequestCtx) (request models.WriteFil
 	request.UserID = 1
 
 	body := ctx.FormValue("body")
-
-	file := ctx.FormValue("file")
+	file, err := ctx.FormFile("file")
+	if err != nil {
+		return
+	}
 
 	err = json.Unmarshal(body, &request)
 	if err != nil {
 		return
 	}
 
-	request.Body = file
-
+	request.File = file
 	return
 }
 
@@ -53,15 +54,17 @@ func (t transport) PhotoDecode(ctx *fasthttp.RequestCtx) (request models.WritePh
 	request.UserID = 1
 
 	body := ctx.FormValue("body")
-
-	file := ctx.FormValue("file")
+	file, err := ctx.FormFile("file")
+	if err != nil {
+		return
+	}
 
 	err = json.Unmarshal(body, &request)
 	if err != nil {
 		return
 	}
 
-	request.Body = file
+	request.File = file
 
 	return
 }
