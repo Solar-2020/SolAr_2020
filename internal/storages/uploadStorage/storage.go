@@ -56,22 +56,26 @@ func (s *storage) SaveFile(file models.WriteFile) (fileView models.File, err err
 	fileView.URL = s.filePath + "/" + filePath + "/" + fileName
 
 	if err = os.MkdirAll(s.filePath+"/"+filePath, 0777); err != nil {
+		fmt.Println("Error on MkdirAll: ", err)
 		return
 	}
 
 	writeFile, err := os.Create(fileView.URL)
 	if err != nil {
+		fmt.Println("Cannot create file: ", err)
 		return
 	}
 	defer writeFile.Close()
 
 	readFile, err := file.File.Open()
 	if err != nil {
+		fmt.Println("Cannot open file: ", err)
 		return
 	}
 	defer readFile.Close()
 
-	_, err = io.Copy(writeFile, readFile)
+	n, err := io.Copy(writeFile, readFile)
+	fmt.Println("File copied: err=", err, ", n= ", n)
 
 	return
 }

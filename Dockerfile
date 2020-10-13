@@ -38,5 +38,15 @@ ENV UPLOAD_DB_CONNECTION_STRING=postgres://postgres:postgres@185.255.134.117:543
 
 EXPOSE 8099
 
+ADD ./scripts/run.sh /run.sh
+
+ENV GIT_BRANCH="main"
+
+#RUN touch /solar_main.log
+#RUN ls /
+
 # Command to run
-ENTRYPOINT ["/main"]
+#CMD ["/main >> /solar_main.log"]
+#CMD "/bin/sh -c ls /"
+#CMD "/bin/sh"
+CMD /run.sh /main /var/log/solar_$GIT_BRANCH.log
