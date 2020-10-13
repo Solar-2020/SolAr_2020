@@ -1,6 +1,9 @@
 package handlers
 
-import "github.com/valyala/fasthttp"
+import (
+	"fmt"
+	"github.com/valyala/fasthttp"
+)
 
 type Middleware interface {
 	CORS(next fasthttp.RequestHandler) fasthttp.RequestHandler
@@ -22,6 +25,12 @@ var (
 
 func (m middleware) CORS(next fasthttp.RequestHandler) fasthttp.RequestHandler {
 	return func(ctx *fasthttp.RequestCtx) {
+
+		defer func() {
+			if r := recover(); r != nil {
+				fmt.Println("Recovered in f", r)
+			}
+		}()
 
 		ctx.Response.Header.Set("Access-Control-Allow-Credentials", corsAllowCredentials)
 		ctx.Response.Header.Set("Access-Control-Allow-Headers", corsAllowHeaders)
