@@ -1,8 +1,8 @@
 package handlers
 
 import (
-	postsHandler "github.com/BarniBl/SolAr_2020/cmd/handlers/posts"
-	uploadHandler "github.com/BarniBl/SolAr_2020/cmd/handlers/upload"
+	postsHandler "github.com/Solar-2020/SolAr_2020/cmd/handlers/posts"
+	uploadHandler "github.com/Solar-2020/SolAr_2020/cmd/handlers/upload"
 	"github.com/buaazp/fasthttprouter"
 )
 

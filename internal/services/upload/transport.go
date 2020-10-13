@@ -2,7 +2,7 @@ package upload
 
 import (
 	"encoding/json"
-	"github.com/BarniBl/SolAr_2020/internal/models"
+	"github.com/Solar-2020/SolAr_2020/internal/models"
 	"github.com/valyala/fasthttp"
 )
 
