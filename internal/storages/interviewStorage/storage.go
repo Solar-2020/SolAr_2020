@@ -22,7 +22,6 @@ func NewStorage(db *sql.DB) Storage {
 	}
 }
 
-
 func (s *storage) InsertInterviews(interviews []models.Interview, postID int) (err error) {
 	if len(interviews) == 0 {
 		return
@@ -86,7 +85,6 @@ func (s *storage) insertAnswers(tx *sql.Tx, answers []models.Answer, interviewID
 	return
 }
 
-
 func (s *storage) SelectInterviews(postIDs []int) (interviews []models.Interview, err error) {
 	const sqlQueryTemplate = `
 	SELECT i.id, i.text, i.type, i.post_id
@@ -120,7 +118,58 @@ func (s *storage) SelectInterviews(postIDs []int) (interviews []models.Interview
 		interviews = append(interviews, tempInterview)
 	}
 
-	// TODO SELECT ANSWERS
+	interviewIDs := make([]int, 0)
+	for i, _ := range interviews {
+		interviewIDs = append(interviewIDs, interviews[i].ID)
+	}
+
+	answers, err := s.selectAnswers(interviewIDs)
+	if err != nil {
+		return
+	}
+
+	for _, answer := range answers {
+		for i, _ := range interviews {
+			if answer.InterviewID == interviews[i].ID {
+				interviews[i].Answers = append(interviews[i].Answers, answer)
+			}
+		}
+	}
+	return
+}
+
+func (s *storage) selectAnswers(interviewIDs []int) (answers []models.Answer, err error) {
+	const sqlQueryTemplate = `
+	SELECT a.id, a.text, a.interview_id
+	FROM answers AS a
+	WHERE a.interview_id IN `
+
+	sqlQuery := sqlQueryTemplate + createIN(len(interviewIDs))
+
+	var params []interface{}
+
+	for i, _ := range interviewIDs {
+		params = append(params, interviewIDs[i])
+	}
+
+	for i := 1; i <= len(interviewIDs)*1; i++ {
+		sqlQuery = strings.Replace(sqlQuery, "?", "$"+strconv.Itoa(i), 1)
+	}
+
+	rows, err := s.db.Query(sqlQuery, params...)
+	if err != nil {
+		return
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var tempAnswer models.Answer
+		err = rows.Scan(&tempAnswer.ID, &tempAnswer.Text, &tempAnswer.InterviewID)
+		if err != nil {
+			return
+		}
+		answers = append(answers, tempAnswer)
+	}
 
 	return
 }
@@ -144,11 +193,11 @@ func (s *storage) createInsertQuery(sliceLen int, structLen int) (query string) 
 			query += "?,"
 		}
 		// delete last comma
-		query =  strings.TrimRight(query, ",")
+		query = strings.TrimRight(query, ",")
 		query += "),"
 	}
 	// delete last comma
-	query =  strings.TrimRight(query, ",")
+	query = strings.TrimRight(query, ",")
 
 	return
 }

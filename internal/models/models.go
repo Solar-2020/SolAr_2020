@@ -58,8 +58,9 @@ type Interview struct {
 }
 
 type Answer struct {
-	ID   int    `json:"id"`
-	Text string `json:"text"`
+	ID          int    `json:"id"`
+	Text        string `json:"text"`
+	InterviewID int    `json:"interviewID"`
 }
 
 type Payment struct {
