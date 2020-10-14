@@ -115,6 +115,7 @@ func (s *storage) SelectInterviews(postIDs []int) (interviews []models.Interview
 		if err != nil {
 			return
 		}
+		tempInterview.Answers = make([]models.Answer, 0)
 		interviews = append(interviews, tempInterview)
 	}
 
