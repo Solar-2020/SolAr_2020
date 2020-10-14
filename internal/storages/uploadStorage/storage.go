@@ -23,8 +23,8 @@ type Storage interface {
 	SelectCountFiles(fileIDs []int, userID int) (countFiles int, err error)
 	SelectCountPhotos(photoIDs []int, userID int) (countPhotos int, err error)
 
-	SelectFiles(fileIDs []int) (files []models.File, err error)
-	SelectPhotos(photoIDs []int) (photos []models.Photo, err error)
+	SelectFiles(fileIDs []int) (files map[int]models.File, err error)
+	SelectPhotos(photoIDs []int) (photos map[int]models.Photo, err error)
 }
 
 type storage struct {
@@ -230,7 +230,8 @@ func createIN(count int) (queryIN string) {
 	return
 }
 
-func (s *storage) SelectFiles(fileIDs []int) (files []models.File, err error) {
+func (s *storage) SelectFiles(fileIDs []int) (files map[int]models.File, err error) {
+	files = make(map[int]models.File)
 	const sqlQueryTemplate = `
 	SELECT f.id, f.title, f.url
 	FROM files AS f
@@ -260,13 +261,14 @@ func (s *storage) SelectFiles(fileIDs []int) (files []models.File, err error) {
 		if err != nil {
 			return
 		}
-		files = append(files, tempFile)
+		files[tempFile.ID] = tempFile
 	}
 
 	return
 }
 
-func (s *storage) SelectPhotos(photoIDs []int) (photos []models.Photo, err error) {
+func (s *storage) SelectPhotos(photoIDs []int) (photos map[int]models.Photo, err error) {
+	photos = make(map[int]models.Photo)
 	const sqlQueryTemplate = `
 	SELECT p.id, p.title, p.url
 	FROM photos AS p
@@ -296,7 +298,7 @@ func (s *storage) SelectPhotos(photoIDs []int) (photos []models.Photo, err error
 		if err != nil {
 			return
 		}
-		photos = append(photos, tempPhoto)
+		photos[tempPhoto.ID] = tempPhoto
 	}
 
 	return

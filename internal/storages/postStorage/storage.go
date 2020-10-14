@@ -16,6 +16,9 @@ type Storage interface {
 
 	UpdatePostStatus(postID int, status int) (err error)
 
+	SelectFileIDs(postIDs []int) (matches []models.PostFileMatch, err error)
+	SelectPhotoIDs(postIDs []int) (matches []models.PostPhotoMatch, err error)
+
 	SelectPosts(request models.GetPostListRequest) (posts []models.InputPost, err error)
 	SelectPayments(postIDs []int) (payments []models.Payment, err error)
 	SelectInterviews(postIDs []int) (interviews []models.Interview, err error)
@@ -229,6 +232,78 @@ func (s *storage) SelectPayments(postIDs []int) (payments []models.Payment, err 
 			return
 		}
 		payments = append(payments, tempPayment)
+	}
+
+	return
+}
+
+func (s *storage) SelectFileIDs(postIDs []int) (matches []models.PostFileMatch, err error) {
+	const sqlQueryTemplate = `
+	SELECT f.post_id, f.file_id
+	FROM files AS f
+	WHERE f.post_id IN `
+
+	sqlQuery := sqlQueryTemplate + createIN(len(postIDs))
+
+	var params []interface{}
+
+	for i, _ := range postIDs {
+		params = append(params, postIDs[i])
+	}
+
+	for i := 1; i <= len(postIDs)*1; i++ {
+		sqlQuery = strings.Replace(sqlQuery, "?", "$"+strconv.Itoa(i), 1)
+	}
+
+	rows, err := s.db.Query(sqlQuery, params...)
+	if err != nil {
+		return
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var tempMatch models.PostFileMatch
+		err = rows.Scan(&tempMatch.PostID, &tempMatch.FileID)
+		if err != nil {
+			return
+		}
+		matches = append(matches, tempMatch)
+	}
+
+	return
+}
+
+func (s *storage) SelectPhotoIDs(postIDs []int) (matches []models.PostPhotoMatch, err error) {
+	const sqlQueryTemplate = `
+	SELECT p.post_id, p.photo_id
+	FROM photos AS p
+	WHERE p.post_id IN `
+
+	sqlQuery := sqlQueryTemplate + createIN(len(postIDs))
+
+	var params []interface{}
+
+	for i, _ := range postIDs {
+		params = append(params, postIDs[i])
+	}
+
+	for i := 1; i <= len(postIDs)*1; i++ {
+		sqlQuery = strings.Replace(sqlQuery, "?", "$"+strconv.Itoa(i), 1)
+	}
+
+	rows, err := s.db.Query(sqlQuery, params...)
+	if err != nil {
+		return
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var tempMatch models.PostPhotoMatch
+		err = rows.Scan(&tempMatch.PostID, &tempMatch.PhotoID)
+		if err != nil {
+			return
+		}
+		matches = append(matches, tempMatch)
 	}
 
 	return

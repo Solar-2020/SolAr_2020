@@ -9,6 +9,9 @@ type postStorage interface {
 
 	UpdatePostStatus(postID int, status int) (err error)
 
+	SelectFileIDs(postIDs []int) (matches []models.PostFileMatch, err error)
+	SelectPhotoIDs(postIDs []int) (matches []models.PostPhotoMatch, err error)
+
 	SelectPosts(request models.GetPostListRequest) (posts []models.InputPost, err error)
 
 	SelectPayments(postIDs []int) (payments []models.Payment, err error)
@@ -20,8 +23,8 @@ type uploadStorage interface {
 	SelectCountFiles(fileIDs []int, userID int) (countFiles int, err error)
 	SelectCountPhotos(photoIDs []int, userID int) (countFiles int, err error)
 
-	SelectFiles(fileIDs []int) (files []models.File, err error)
-	SelectPhotos(photoIDs []int) (photos []models.Photo, err error)
+	SelectFiles(fileIDs []int) (files map[int]models.File, err error)
+	SelectPhotos(photoIDs []int) (photos map[int]models.Photo, err error)
 }
 
 type interviewStorage interface {

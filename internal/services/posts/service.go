@@ -7,7 +7,7 @@ import (
 
 type Service interface {
 	Create(request models.InputPost) (response models.Post, err error)
-	GetList(request models.GetPostListRequest) (response []models.InputPost, err error)
+	GetList(request models.GetPostListRequest) (response []models.Post, err error)
 }
 
 type service struct {
@@ -117,18 +117,33 @@ func (s *service) checkPhotos(photoIDs []int, userID int) (err error) {
 	return
 }
 
-func (s *service) GetList(request models.GetPostListRequest) (response []models.InputPost, err error) {
+func (s *service) GetList(request models.GetPostListRequest) (response []models.Post, err error) {
 	posts, err := s.postsStorage.SelectPosts(request)
 	if err != nil {
 		return
+	}
+
+	postsMap := make(map[int]models.Post)
+	for _, post := range posts {
+		postsMap[post.ID] = models.Post{
+			ID:          post.ID,
+			CreateBy:    post.CreateBy,
+			CreatAt:     post.CreatAt,
+			PublishDate: post.PublishDate,
+			GroupID:     post.GroupID,
+			Text:        post.Text,
+			Status:      post.Status,
+			Photos:      make([]models.Photo, 0),
+			Files:       make([]models.File, 0),
+			Interviews:  make([]models.Interview, 0),
+			Payments:    make([]models.Payment, 0),
+		}
 	}
 
 	postIDs := make([]int, 0)
 	for i, _ := range posts {
 		postIDs = append(postIDs, posts[i].ID)
 	}
-
-	response = posts
 
 	interviews, err := s.interviewStorage.SelectInterviews(postIDs)
 	if err != nil {
@@ -140,49 +155,63 @@ func (s *service) GetList(request models.GetPostListRequest) (response []models.
 		return
 	}
 
-	//photos, err := s.uploadStorage.SelectPhotos(postIDs)
-	//if err != nil {
-	//	return
-	//}
-	//
-	//files, err := s.uploadStorage.SelectFiles(postIDs)
-	//if err != nil {
-	//	return
-	//}
-
-	for i, _ := range posts {
-		for j, _ := range interviews {
-			if posts[i].ID == interviews[j].PostID {
-				posts[i].Interviews = append(posts[i].Interviews, interviews[j])
-			}
-		}
-
-		for j, _ := range payments {
-			if posts[i].ID == payments[j].PostID {
-				posts[i].Payments = append(posts[i].Payments, payments[j])
-			}
-		}
+	matchPostPhoto, err := s.postsStorage.SelectPhotoIDs(postIDs)
+	if err != nil {
+		return
 	}
-	//interview, err := s.postStorage.SelectInterviews(postIDs)
-	//if err != nil {
-	//	return
-	//}
-	//
-	//payments, err := s.postStorage.SelectPayments(postIDs)
-	//if err != nil {
-	//	return
-	//}
-	//
-	//files, err := s.uploadStorage.SelectFiles(postIDs)
-	//if err != nil {
-	//	return
-	//}
-	//
-	//photos, err := s.uploadStorage.SelectPhotos(postIDs)
-	//if err != nil {
-	//	return
-	//}
-	//
-	//fmt.Println(posts, interview, payments, files, photos)
+
+	photoIDs := make([]int, 0)
+	for i, _ := range matchPostPhoto {
+		photoIDs = append(photoIDs, matchPostPhoto[i].PhotoID)
+	}
+
+	matchPostFile, err := s.postsStorage.SelectFileIDs(postIDs)
+	if err != nil {
+		return
+	}
+
+	fileIDs := make([]int, 0)
+	for i, _ := range matchPostFile {
+		fileIDs = append(fileIDs, matchPostFile[i].FileID)
+	}
+
+	photos, err := s.uploadStorage.SelectPhotos(photoIDs)
+	if err != nil {
+		return
+	}
+
+	files, err := s.uploadStorage.SelectFiles(fileIDs)
+	if err != nil {
+		return
+	}
+
+	for _, interview := range interviews {
+		tempPost := postsMap[interview.PostID]
+		tempPost.Interviews = append(tempPost.Interviews, interview)
+		postsMap[interview.PostID] = tempPost
+	}
+
+	for _, payment := range payments {
+		tempPost := postsMap[payment.PostID]
+		tempPost.Payments = append(tempPost.Payments, payment)
+		postsMap[payment.PostID] = tempPost
+	}
+
+	for _, match := range matchPostPhoto {
+		tempPost := postsMap[match.PostID]
+		tempPost.Photos = append(tempPost.Photos, photos[match.PhotoID])
+		postsMap[match.PostID] = tempPost
+	}
+
+	for _, match := range matchPostFile {
+		tempPost := postsMap[match.PostID]
+		tempPost.Files = append(tempPost.Files, files[match.FileID])
+		postsMap[match.PostID] = tempPost
+	}
+
+	for _, post := range postsMap {
+		response = append(response, post)
+	}
+
 	return
 }
