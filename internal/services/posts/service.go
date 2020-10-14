@@ -130,6 +130,39 @@ func (s *service) GetList(request models.GetPostListRequest) (response []models.
 
 	response = posts
 
+	interviews, err := s.interviewStorage.SelectInterviews(postIDs)
+	if err != nil {
+		return
+	}
+
+	payments, err := s.paymentStorage.SelectPayments(postIDs)
+	if err != nil {
+		return
+	}
+
+	//photos, err := s.uploadStorage.SelectPhotos(postIDs)
+	//if err != nil {
+	//	return
+	//}
+	//
+	//files, err := s.uploadStorage.SelectFiles(postIDs)
+	//if err != nil {
+	//	return
+	//}
+
+	for i, _ := range posts {
+		for j, _ := range interviews {
+			if posts[i].ID == interviews[j].PostID {
+				posts[i].Interviews = append(posts[i].Interviews, interviews[j])
+			}
+		}
+
+		for j, _ := range payments {
+			if posts[i].ID == payments[j].PostID {
+				posts[i].Payments = append(posts[i].Payments, payments[j])
+			}
+		}
+	}
 	//interview, err := s.postStorage.SelectInterviews(postIDs)
 	//if err != nil {
 	//	return

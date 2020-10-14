@@ -123,7 +123,7 @@ func (s *storage) insertFiles(tx *sql.Tx, files []int, postID int) (err error) {
 
 func (s *storage) UpdatePostStatus(postID int, status int) (err error) {
 	const sqlQuery = `
-	UPDATE posts.posts
+	UPDATE posts
 	SET status_id = $2
 	WHERE id = $1;`
 
@@ -138,7 +138,7 @@ func (s *storage) SelectPosts(request models.GetPostListRequest) (posts []models
 	FROM posts.posts AS p
 	WHERE p.create_by = $1
 	  AND p.group_id = $2
-	  AND p.status_id = 1
+	  AND p.status_id = 2
 	  AND p.publish_date <= $3
 	LIMIT $4`
 

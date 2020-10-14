@@ -56,7 +56,7 @@ func (s *storage) SelectPayments(postIDs []int) (payments []models.Payment, err 
 	const sqlQueryTemplate = `
 	SELECT p.id, p.cost, p.currency_id, p.post_id
 	FROM payments AS p
-	WHERE i.post_id IN `
+	WHERE p.post_id IN `
 
 	sqlQuery := sqlQueryTemplate + createIN(len(postIDs))
 

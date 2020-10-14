@@ -90,7 +90,7 @@ func (s *storage) insertAnswers(tx *sql.Tx, answers []models.Answer, interviewID
 func (s *storage) SelectInterviews(postIDs []int) (interviews []models.Interview, err error) {
 	const sqlQueryTemplate = `
 	SELECT i.id, i.text, i.type, i.post_id
-	FROM interview AS i
+	FROM interviews AS i
 	WHERE i.post_id IN `
 
 	sqlQuery := sqlQueryTemplate + createIN(len(postIDs))
