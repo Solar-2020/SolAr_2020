@@ -3,6 +3,7 @@ package posts
 import (
 	"errors"
 	"github.com/Solar-2020/SolAr_Backend_2020/internal/models"
+	"sort"
 )
 
 type Service interface {
@@ -124,7 +125,7 @@ func (s *service) GetList(request models.GetPostListRequest) (response []models.
 	}
 
 	postsMap := make(map[int]models.Post)
-	for _, post := range posts {
+	for index, post := range posts {
 		postsMap[post.ID] = models.Post{
 			ID:          post.ID,
 			CreateBy:    post.CreateBy,
@@ -137,6 +138,7 @@ func (s *service) GetList(request models.GetPostListRequest) (response []models.
 			Files:       make([]models.File, 0),
 			Interviews:  make([]models.Interview, 0),
 			Payments:    make([]models.Payment, 0),
+			Order:       index,
 		}
 	}
 
@@ -213,5 +215,8 @@ func (s *service) GetList(request models.GetPostListRequest) (response []models.
 		response = append(response, post)
 	}
 
-	return
+	sortPost := models.Posts{Posts: response}
+	sort.Sort(&sortPost)
+
+	return sortPost.Posts, nil
 }
