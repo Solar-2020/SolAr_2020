@@ -143,6 +143,7 @@ func (s *storage) SelectPosts(request models.GetPostListRequest) (posts []models
 	  AND p.group_id = $2
 	  AND p.status_id = 2
 	  AND p.publish_date <= $3
+	ORDER BY p.publish_date DESC
 	LIMIT $4`
 
 	rows, err := s.db.Query(sqlQuery, request.UserID, request.GroupID, request.StartFrom, request.Limit)

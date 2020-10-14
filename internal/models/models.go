@@ -47,6 +47,23 @@ type Post struct {
 	Files       []File      `json:"files"`
 	Interviews  []Interview `json:"interviews"`
 	Payments    []Payment   `json:"payments"`
+	Order       int         `json:"-"`
+}
+
+type Posts struct {
+	Posts []Post
+}
+
+func (p *Posts) Len() int {
+	return len(p.Posts)
+}
+
+func (p *Posts) Swap(i, j int) {
+	p.Posts[i], p.Posts[j] = p.Posts[j], p.Posts[i]
+}
+
+func (p *Posts) Less(i, j int) bool {
+	return p.Posts[i].Order < p.Posts[j].Order
 }
 
 type Interview struct {
