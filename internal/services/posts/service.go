@@ -2,7 +2,7 @@ package posts
 
 import (
 	"errors"
-	"github.com/Solar-2020/SolAr_2020/internal/models"
+	"github.com/Solar-2020/SolAr_Backend_2020/internal/models"
 )
 
 type Service interface {
@@ -11,14 +11,18 @@ type Service interface {
 }
 
 type service struct {
-	postsStorage  postsStorage
-	uploadStorage uploadStorage
+	postsStorage     postStorage
+	uploadStorage    uploadStorage
+	interviewStorage interviewStorage
+	paymentStorage   paymentStorage
 }
 
-func NewService(postsStorage postsStorage, uploadStorage uploadStorage) Service {
+func NewService(postsStorage postStorage, uploadStorage uploadStorage, interviewStorage interviewStorage, paymentStorage paymentStorage) Service {
 	return &service{
-		postsStorage:  postsStorage,
-		uploadStorage: uploadStorage,
+		postsStorage:     postsStorage,
+		uploadStorage:    uploadStorage,
+		interviewStorage: interviewStorage,
+		paymentStorage:   paymentStorage,
 	}
 }
 
@@ -31,19 +35,35 @@ func (s *service) Create(request models.InputPost) (response models.Post, err er
 		return
 	}
 
-	if len(request.Files) != 0 {
-		if err = s.checkFiles(request.Files, request.CreateBy); err != nil {
-			return
-		}
+	if err = s.checkFiles(request.Files, request.CreateBy); err != nil {
+		return
 	}
 
-	if len(request.Photos) != 0 {
-		if err = s.checkPhotos(request.Photos, request.CreateBy); err != nil {
-			return
-		}
+	if err = s.checkPhotos(request.Photos, request.CreateBy); err != nil {
+		return
 	}
 
 	response.ID, err = s.postsStorage.InsertPost(request)
+	if err != nil {
+		return
+	}
+
+	err = s.interviewStorage.InsertInterviews(request.Interviews, response.ID)
+	if err != nil {
+		return
+	}
+
+	err = s.paymentStorage.InsertPayments(request.Payments, response.ID)
+	if err != nil {
+		return
+	}
+
+	// TODO CHANGE TO CONST
+	err = s.postsStorage.UpdatePostStatus(response.ID, 2)
+	if err != nil {
+		return
+	}
+
 	return
 }
 
@@ -110,12 +130,12 @@ func (s *service) GetList(request models.GetPostListRequest) (response []models.
 
 	response = posts
 
-	//interview, err := s.postsStorage.SelectInterviews(postIDs)
+	//interview, err := s.postStorage.SelectInterviews(postIDs)
 	//if err != nil {
 	//	return
 	//}
 	//
-	//payments, err := s.postsStorage.SelectPayments(postIDs)
+	//payments, err := s.postStorage.SelectPayments(postIDs)
 	//if err != nil {
 	//	return
 	//}

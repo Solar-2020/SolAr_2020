@@ -2,9 +2,9 @@ package handlers
 
 import (
 	"fmt"
-	postsHandler "github.com/Solar-2020/SolAr_2020/cmd/handlers/posts"
-	uploadHandler "github.com/Solar-2020/SolAr_2020/cmd/handlers/upload"
-	"github.com/Solar-2020/SolAr_2020/internal/errorWorker"
+	postsHandler "github.com/Solar-2020/SolAr_Backend_2020/cmd/handlers/posts"
+	uploadHandler "github.com/Solar-2020/SolAr_Backend_2020/cmd/handlers/upload"
+	"github.com/Solar-2020/SolAr_Backend_2020/internal/errorWorker"
 	"github.com/buaazp/fasthttprouter"
 	"github.com/valyala/fasthttp"
 	"runtime/debug"

@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"github.com/Solar-2020/SolAr_2020/internal/models"
+	"github.com/Solar-2020/SolAr_Backend_2020/internal/models"
 	"io"
 	"os"
 	"strconv"
@@ -166,6 +166,10 @@ func (s *storage) extractFormatFile(fileName string) (postfix string, err error)
 }
 
 func (s *storage) SelectCountFiles(fileIDs []int, userID int) (countFiles int, err error) {
+	if len(fileIDs) == 0 {
+		return 0, err
+	}
+
 	const sqlQueryTemplate = `
 	SELECT count(*)
 	FROM upload.files AS f
@@ -189,6 +193,10 @@ func (s *storage) SelectCountFiles(fileIDs []int, userID int) (countFiles int, e
 }
 
 func (s *storage) SelectCountPhotos(photoIDs []int, userID int) (countPhotos int, err error) {
+	if len(photoIDs) == 0 {
+		return 0, err
+	}
+
 	const sqlQueryTemplate = `
 	SELECT count(*)
 	FROM photos AS p

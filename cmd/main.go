@@ -2,14 +2,16 @@ package main
 
 import (
 	"database/sql"
-	"github.com/Solar-2020/SolAr_2020/cmd/handlers"
-	postsHandler "github.com/Solar-2020/SolAr_2020/cmd/handlers/posts"
-	uploadHandler "github.com/Solar-2020/SolAr_2020/cmd/handlers/upload"
-	"github.com/Solar-2020/SolAr_2020/internal/errorWorker"
-	"github.com/Solar-2020/SolAr_2020/internal/services/posts"
-	"github.com/Solar-2020/SolAr_2020/internal/services/upload"
-	"github.com/Solar-2020/SolAr_2020/internal/storages/postsStorage"
-	"github.com/Solar-2020/SolAr_2020/internal/storages/uploadStorage"
+	"github.com/Solar-2020/SolAr_Backend_2020/cmd/handlers"
+	postsHandler "github.com/Solar-2020/SolAr_Backend_2020/cmd/handlers/posts"
+	uploadHandler "github.com/Solar-2020/SolAr_Backend_2020/cmd/handlers/upload"
+	"github.com/Solar-2020/SolAr_Backend_2020/internal/errorWorker"
+	"github.com/Solar-2020/SolAr_Backend_2020/internal/services/posts"
+	"github.com/Solar-2020/SolAr_Backend_2020/internal/services/upload"
+	"github.com/Solar-2020/SolAr_Backend_2020/internal/storages/interviewStorage"
+	"github.com/Solar-2020/SolAr_Backend_2020/internal/storages/paymentStorage"
+	"github.com/Solar-2020/SolAr_Backend_2020/internal/storages/postStorage"
+	"github.com/Solar-2020/SolAr_Backend_2020/internal/storages/uploadStorage"
 	"github.com/kelseyhightower/envconfig"
 	_ "github.com/lib/pq"
 	"github.com/rs/zerolog"
@@ -63,8 +65,10 @@ func main() {
 	uploadTransport := upload.NewTransport()
 	uploadHandler := uploadHandler.NewHandler(uploadService, uploadTransport, errorWorker)
 
-	postsStorage := postsStorage.NewStorage(postsDB)
-	postsService := posts.NewService(postsStorage, uploadStorage)
+	interviewStorage := interviewStorage.NewStorage(postsDB)
+	paymentStorage := paymentStorage.NewStorage(postsDB)
+	postStorage := postStorage.NewStorage(postsDB)
+	postsService := posts.NewService(postStorage, uploadStorage, interviewStorage, paymentStorage)
 	postsTransport := posts.NewTransport()
 
 	postsHandler := postsHandler.NewHandler(postsService, postsTransport, errorWorker)

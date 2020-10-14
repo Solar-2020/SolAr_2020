@@ -1,11 +1,14 @@
 package posts
 
 import (
-	"github.com/Solar-2020/SolAr_2020/internal/models"
+	"github.com/Solar-2020/SolAr_Backend_2020/internal/models"
 )
 
-type postsStorage interface {
+type postStorage interface {
 	InsertPost(inputPost models.InputPost) (postID int, err error)
+
+	UpdatePostStatus(postID int, status int) (err error)
+
 	SelectPosts(request models.GetPostListRequest) (posts []models.InputPost, err error)
 
 	SelectPayments(postIDs []int) (payments []models.Payment, err error)
@@ -19,4 +22,14 @@ type uploadStorage interface {
 
 	SelectFiles(fileIDs []int) (files []models.File, err error)
 	SelectPhotos(photoIDs []int) (photos []models.Photo, err error)
+}
+
+type interviewStorage interface {
+	InsertInterviews(interviews []models.Interview, postID int) (err error)
+	SelectInterviews(postIDs []int) (interviews []models.Interview, err error)
+}
+
+type paymentStorage interface {
+	InsertPayments(payments []models.Payment, postID int) (err error)
+	SelectPayments(postIDs []int) (payments []models.Payment, err error)
 }

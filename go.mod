@@ -1,4 +1,4 @@
-module github.com/Solar-2020/SolAr_2020
+module github.com/Solar-2020/SolAr_Backend_2020
 
 go 1.14
 
