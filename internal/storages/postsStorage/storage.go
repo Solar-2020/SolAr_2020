@@ -111,6 +111,10 @@ func (s *storage) insertAnswers(tx *sql.Tx, answers []models.Answer, interviewID
 	INSERT INTO answers(interview_id, text)
 	VALUES `
 
+	if len(answers) == 0 {
+		return
+	}
+
 	var params []interface{}
 
 	sqlQuery := sqlQueryTemplate + s.createInsertQuery(len(answers), 2)
@@ -135,11 +139,13 @@ func (s *storage) createInsertQuery(sliceLen int, structLen int) (query string) 
 			query += "?,"
 		}
 		// delete last comma
-		query = string([]rune(query)[:len([]rune(query))-1])
+		query =  strings.TrimRight(query, ",")
+		//query = string([]rune(query)[:len([]rune(query))-1])
 		query += "),"
 	}
 	// delete last comma
-	query = string([]rune(query)[:len([]rune(query))-1])
+	query =  strings.TrimRight(query, ",")
+	//query = string([]rune(query)[:len([]rune(query))-1])	# bug when no answers
 	return
 }
 
