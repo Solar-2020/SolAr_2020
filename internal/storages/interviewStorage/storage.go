@@ -86,6 +86,10 @@ func (s *storage) insertAnswers(tx *sql.Tx, answers []models.Answer, interviewID
 }
 
 func (s *storage) SelectInterviews(postIDs []int) (interviews []models.Interview, err error) {
+	interviews = make([]models.Interview, 0)
+	if len(postIDs) == 0 {
+		return
+	}
 	const sqlQueryTemplate = `
 	SELECT i.id, i.text, i.type, i.post_id
 	FROM interviews AS i

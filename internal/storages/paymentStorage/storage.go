@@ -53,6 +53,10 @@ func (s *storage) InsertPayments(payments []models.Payment, postID int) (err err
 }
 
 func (s *storage) SelectPayments(postIDs []int) (payments []models.Payment, err error) {
+	payments = make([]models.Payment, 0)
+	if len(postIDs) == 0 {
+		return
+	}
 	const sqlQueryTemplate = `
 	SELECT p.id, p.cost, p.currency_id, p.post_id
 	FROM payments AS p
@@ -107,11 +111,11 @@ func (s *storage) createInsertQuery(sliceLen int, structLen int) (query string) 
 			query += "?,"
 		}
 		// delete last comma
-		query =  strings.TrimRight(query, ",")
+		query = strings.TrimRight(query, ",")
 		query += "),"
 	}
 	// delete last comma
-	query =  strings.TrimRight(query, ",")
+	query = strings.TrimRight(query, ",")
 
 	return
 }

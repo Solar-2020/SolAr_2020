@@ -239,6 +239,10 @@ func (s *storage) SelectPayments(postIDs []int) (payments []models.Payment, err 
 }
 
 func (s *storage) SelectFileIDs(postIDs []int) (matches []models.PostFileMatch, err error) {
+	matches = make([]models.PostFileMatch, 0)
+	if len(postIDs) == 0 {
+		return
+	}
 	const sqlQueryTemplate = `
 	SELECT f.post_id, f.file_id
 	FROM files AS f
@@ -275,6 +279,10 @@ func (s *storage) SelectFileIDs(postIDs []int) (matches []models.PostFileMatch, 
 }
 
 func (s *storage) SelectPhotoIDs(postIDs []int) (matches []models.PostPhotoMatch, err error) {
+	matches = make([]models.PostPhotoMatch, 0)
+	if len(postIDs) == 0 {
+		return
+	}
 	const sqlQueryTemplate = `
 	SELECT p.post_id, p.photo_id
 	FROM photos AS p

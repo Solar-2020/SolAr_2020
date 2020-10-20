@@ -232,6 +232,9 @@ func createIN(count int) (queryIN string) {
 
 func (s *storage) SelectFiles(fileIDs []int) (files map[int]models.File, err error) {
 	files = make(map[int]models.File)
+	if len(fileIDs) == 0 {
+		return
+	}
 	const sqlQueryTemplate = `
 	SELECT f.id, f.title, f.url
 	FROM files AS f
@@ -269,6 +272,9 @@ func (s *storage) SelectFiles(fileIDs []int) (files map[int]models.File, err err
 
 func (s *storage) SelectPhotos(photoIDs []int) (photos map[int]models.Photo, err error) {
 	photos = make(map[int]models.Photo)
+	if len(photoIDs) == 0 {
+		return
+	}
 	const sqlQueryTemplate = `
 	SELECT p.id, p.title, p.url
 	FROM photos AS p

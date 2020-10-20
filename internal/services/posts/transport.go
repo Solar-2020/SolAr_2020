@@ -55,7 +55,7 @@ func (t transport) GetListDecode(ctx *fasthttp.RequestCtx) (request models.GetPo
 	request.Limit = ctx.QueryArgs().GetUintOrZero("limit")
 
 	startFrom := string(ctx.QueryArgs().Peek("startFrom"))
-	request.StartFrom, err = time.Parse("2006-01-02", startFrom)
+	request.StartFrom, err = time.Parse(time.RFC3339, startFrom)
 	if err != nil {
 		return
 	}
