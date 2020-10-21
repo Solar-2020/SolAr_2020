@@ -65,7 +65,8 @@ func main() {
 	uploadTransport := upload.NewTransport()
 	uploadHandler := uploadHandler.NewHandler(uploadService, uploadTransport, errorWorker)
 
-	interviewStorage := interviewStorage.NewStorage(postsDB)
+	//interviewStorage := interviewStorage.NewStorage(postsDB)
+	interviewStorage := interviewStorage.NewStorageProxy(cfg.InterviewService)
 	paymentStorage := paymentStorage.NewStorage(postsDB)
 	postStorage := postStorage.NewStorage(postsDB)
 	postsService := posts.NewService(postStorage, uploadStorage, interviewStorage, paymentStorage)
