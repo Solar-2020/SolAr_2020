@@ -16,9 +16,9 @@ jobs:
       - name: Branch name
         run: echo running on branch ${GITHUB_REF##*/}
 
-      - uses: satackey/action-docker-layer-caching@v0.0.8
-        # Ignore the failure of a step and avoid terminating the job.
-        continue-on-error: true
+#      - uses: satackey/action-docker-layer-caching@v0.0.8
+#        # Ignore the failure of a step and avoid terminating the job.
+#        continue-on-error: true
 
       - name: Build Docker image
         run: docker build -t tamerlanchik/solar_${SERVICE}_${GITHUB_REF##*/} .
@@ -32,7 +32,7 @@ jobs:
       - name: pull docker image
         uses: appleboy/ssh-action@master
         with:
-          envs: GITHUB_SHA, GITHUB_REF
+          envs: GITHUB_SHA, GITHUB_REF, SERVICE
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.PRIVATE_KEY }}
