@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	httputils "github.com/Solar-2020/GoUtils/http"
 	"github.com/Solar-2020/SolAr_Backend_2020/cmd/handlers"
 	postsHandler "github.com/Solar-2020/SolAr_Backend_2020/cmd/handlers/posts"
 	uploadHandler "github.com/Solar-2020/SolAr_Backend_2020/cmd/handlers/upload"
@@ -74,7 +75,7 @@ func main() {
 
 	postsHandler := postsHandler.NewHandler(postsService, postsTransport, errorWorker)
 
-	middlewares := handlers.NewMiddleware()
+	middlewares := httputils.NewMiddleware()
 
 	server := fasthttp.Server{
 		Handler: handlers.NewFastHttpRouter(postsHandler, uploadHandler, middlewares).Handler,

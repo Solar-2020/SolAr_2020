@@ -1,9 +1,13 @@
-package handlers
+package http
 
-import "github.com/valyala/fasthttp"
+import (
+	"fmt"
+	"github.com/valyala/fasthttp"
+)
 
 type Middleware interface {
 	CORS(next fasthttp.RequestHandler) fasthttp.RequestHandler
+	Log(next fasthttp.RequestHandler) fasthttp.RequestHandler
 }
 
 type middleware struct {
@@ -29,5 +33,19 @@ func (m middleware) CORS(next fasthttp.RequestHandler) fasthttp.RequestHandler {
 		ctx.Response.Header.Set("Access-Control-Allow-Origin", corsAllowOrigin)
 
 		next(ctx)
+	}
+}
+
+func (m middleware) Log(next fasthttp.RequestHandler) fasthttp.RequestHandler {
+	return func(ctx *fasthttp.RequestCtx) {
+		fmt.Println("Start new request: ", ctx.Request.URI())
+		fmt.Println(ctx.Request.String())
+		next(ctx)
+	}
+}
+
+func NewLogCorsChain(middleware Middleware) func(func(ctx *fasthttp.RequestCtx)) fasthttp.RequestHandler {
+	return func(target func(ctx *fasthttp.RequestCtx)) fasthttp.RequestHandler {
+		return middleware.Log(middleware.CORS(target))
 	}
 }

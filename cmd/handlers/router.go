@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"fmt"
+	httputils "github.com/Solar-2020/GoUtils/http"
 	postsHandler "github.com/Solar-2020/SolAr_Backend_2020/cmd/handlers/posts"
 	uploadHandler "github.com/Solar-2020/SolAr_Backend_2020/cmd/handlers/upload"
 	"github.com/Solar-2020/SolAr_Backend_2020/internal/errorWorker"
@@ -10,12 +11,13 @@ import (
 	"runtime/debug"
 )
 
-func NewFastHttpRouter(posts postsHandler.Handler, upload uploadHandler.Handler, middleware Middleware) *fasthttprouter.Router {
+func NewFastHttpRouter(posts postsHandler.Handler, upload uploadHandler.Handler, middleware httputils.Middleware) *fasthttprouter.Router {
 	router := fasthttprouter.New()
 
 	//router.Handle("GET", "/health", check)
 
 	router.PanicHandler = panicHandler
+	router.Handle("GET", "/health", middleware.Log(httputils.HealthCheckHandler))
 
 	router.Handle("POST", "/api/posts/post", middleware.CORS(posts.Create))
 	router.Handle("GET", "/api/posts/posts", middleware.CORS(posts.GetList))
