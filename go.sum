@@ -5,6 +5,7 @@ github.com/Solar-2020/GoUtils v0.0.0-20201023223600-e30dd1f13d4f/go.mod h1:S+8e4
 github.com/Solar-2020/Interview-Backend v0.0.0-20201021161821-bca2563a1413/go.mod h1:S+CLAjoTWP0fmbpkbwHLfZDsvJoFVrWsPdfoS1t8Q94=
 github.com/Solar-2020/Interview-Backend v0.0.0-20201023192944-288ba2ba5a70 h1:sr3tuYZFGl2A2rVODRZdZ22ftoflIFHSY67yUiFAlhU=
 github.com/Solar-2020/Interview-Backend v0.0.0-20201023192944-288ba2ba5a70/go.mod h1:rfUwDBKaZEBIdk53ffKgadPzHXLl3YHsgg/hXUdkid8=
+github.com/Solar-2020/Interview-Backend v0.0.0-20201023223746-e4765b90b352/go.mod h1:VLAC7o4h2jWkadNHXNLvxt5tkbZntmA2F6GyogrAph8=
 github.com/andybalholm/brotli v1.0.0 h1:7UCwP93aiSfvWpapti8g88vVVGp2qqtGyePsSuDafo4=
 github.com/andybalholm/brotli v1.0.0/go.mod h1:loMXtMfwqflxFJPmdbJO0a3KNoPuLBgiu3qAvBg8x/Y=
 github.com/buaazp/fasthttprouter v0.1.1 h1:4oAnN0C3xZjylvZJdP35cxfclyn4TYkW6Y+DSvS+h8Q=

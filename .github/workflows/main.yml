@@ -21,7 +21,7 @@ jobs:
 #        continue-on-error: true
 
       - name: Build Docker image
-        run: docker build -t tamerlanchik/solar_${SERVICE}_${GITHUB_REF##*/}:${GITHUB_SHA} .
+        run: docker build -t tamerlanchik/solar_${SERVICE}_${GITHUB_REF##*/}:${GITHUB_SHA} -t tamerlanchik/solar_${SERVICE}_${GITHUB_REF##*/}:latest .
       - name: Push the image
         run: docker push tamerlanchik/solar_${SERVICE}_${GITHUB_REF##*/}:${GITHUB_SHA}
 
