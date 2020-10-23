@@ -31,6 +31,9 @@ RUN cp /build/main .
 # Build a small image
 FROM alpine
 
+# for health check
+RUN apk --no-cache add curl
+
 COPY --from=builder /dist/main /
 
 ENV POSTS_DB_CONNECTION_STRING=postgres://postgres:postgres@185.255.134.117:5432/posts?search_path=posts&sslmode=disable
