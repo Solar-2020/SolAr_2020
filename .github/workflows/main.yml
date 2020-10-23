@@ -21,9 +21,9 @@ jobs:
 #        continue-on-error: true
 
       - name: Build Docker image
-        run: docker build -t tamerlanchik/solar_${SERVICE}_${GITHUB_REF##*/} .
+        run: docker build -t tamerlanchik/solar_${SERVICE}_${GITHUB_REF##*/}:${GITHUB_SHA} .
       - name: Push the image
-        run: docker push tamerlanchik/solar_${SERVICE}_${GITHUB_REF##*/}
+        run: docker push tamerlanchik/solar_${SERVICE}_${GITHUB_REF##*/}:${GITHUB_SHA}
 
   deploy:
     runs-on: ubuntu-latest
@@ -36,4 +36,4 @@ jobs:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.PRIVATE_KEY }}
-          script: sudo /opt/puppetlabs/bin/puppet apply -t --tags gobackend::${SERVICE}::${GITHUB_REF##*/} /etc/puppetlabs/code/environments/production/manifests/site.pp; [[ "02" == *"${PIPESTATUS[0]}"* ]]
+          script: sudo FACTER_image_tag=${GITHUB_SHA} /opt/puppetlabs/bin/puppet apply -t --tags gobackend::${SERVICE}::${GITHUB_REF##*/} /etc/puppetlabs/code/environments/production/manifests/site.pp; [[ "02" == *"${PIPESTATUS[0]}"* ]]
