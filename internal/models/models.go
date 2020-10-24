@@ -81,8 +81,9 @@ type Answer struct {
 }
 
 type Payment struct {
-	ID       int `json:"id"`
-	Cost     int `json:"cost"`
-	Currency int `json:"currency"`
-	PostID   int `json:"postID"`
+	ID        int    `json:"id"`
+	Cost      int    `json:"cost"`
+	Currency  int    `json:"currency"`
+	PostID    int    `json:"postID"`
+	Requisite string `json:"requisite"`
 }

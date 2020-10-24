@@ -1,11 +1,8 @@
 github.com/DATA-DOG/go-sqlmock v1.5.0/go.mod h1:f/Ixk793poVmq4qj/V1dPUg2JEAKC73Q5eFN3EC/SaM=
-github.com/Solar-2020/GoUtils v0.0.0-20201023184730-7fd21390dfdf h1:JazlxJgie5E/blqoDUDGLgMY/UBrsIkec+p5lb7wjIU=
-github.com/Solar-2020/GoUtils v0.0.0-20201023184730-7fd21390dfdf/go.mod h1:S+8e42EZ+g2yD2fcSDn1eag4IEhAXryx5pjxgt7OxNU=
 github.com/Solar-2020/GoUtils v0.0.0-20201023223600-e30dd1f13d4f/go.mod h1:S+8e42EZ+g2yD2fcSDn1eag4IEhAXryx5pjxgt7OxNU=
+github.com/Solar-2020/GoUtils v0.0.0-20201024095230-8f259c1d6837 h1:uWBKefwFhuEuL+BXb+cvCrQejp4P5iaxoSu+Qj9fss0=
 github.com/Solar-2020/GoUtils v0.0.0-20201024095230-8f259c1d6837/go.mod h1:S+8e42EZ+g2yD2fcSDn1eag4IEhAXryx5pjxgt7OxNU=
-github.com/Solar-2020/Interview-Backend v0.0.0-20201021161821-bca2563a1413/go.mod h1:S+CLAjoTWP0fmbpkbwHLfZDsvJoFVrWsPdfoS1t8Q94=
-github.com/Solar-2020/Interview-Backend v0.0.0-20201023192944-288ba2ba5a70 h1:sr3tuYZFGl2A2rVODRZdZ22ftoflIFHSY67yUiFAlhU=
-github.com/Solar-2020/Interview-Backend v0.0.0-20201023192944-288ba2ba5a70/go.mod h1:rfUwDBKaZEBIdk53ffKgadPzHXLl3YHsgg/hXUdkid8=
+github.com/Solar-2020/Interview-Backend v0.0.0-20201023223746-e4765b90b352 h1:Z/2EkdhpOkgLznlGzDziEr34s9zpy17VLOiCzdvJMpg=
 github.com/Solar-2020/Interview-Backend v0.0.0-20201023223746-e4765b90b352/go.mod h1:VLAC7o4h2jWkadNHXNLvxt5tkbZntmA2F6GyogrAph8=
 github.com/andybalholm/brotli v1.0.0 h1:7UCwP93aiSfvWpapti8g88vVVGp2qqtGyePsSuDafo4=
 github.com/andybalholm/brotli v1.0.0/go.mod h1:loMXtMfwqflxFJPmdbJO0a3KNoPuLBgiu3qAvBg8x/Y=

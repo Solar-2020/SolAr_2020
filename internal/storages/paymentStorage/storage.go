@@ -32,18 +32,18 @@ func (s *storage) InsertPayments(payments []models.Payment, postID int) (err err
 	}
 
 	const sqlQueryTemplate = `
-	INSERT INTO payments(post_id, cost, currency_id)
+	INSERT INTO payments(post_id, cost, currency_id, requisite)
 	VALUES `
 
 	var params []interface{}
 
-	sqlQuery := sqlQueryTemplate + s.createInsertQuery(len(payments), 3) + queryReturningID
+	sqlQuery := sqlQueryTemplate + s.createInsertQuery(len(payments), 4) + queryReturningID
 
 	for i, _ := range payments {
-		params = append(params, postID, payments[i].Cost, payments[i].Currency)
+		params = append(params, postID, payments[i].Cost, payments[i].Currency, payments[i].Requisite)
 	}
 
-	for i := 1; i <= len(payments)*3; i++ {
+	for i := 1; i <= len(payments)*4; i++ {
 		sqlQuery = strings.Replace(sqlQuery, "?", "$"+strconv.Itoa(i), 1)
 	}
 
@@ -58,7 +58,7 @@ func (s *storage) SelectPayments(postIDs []int) (payments []models.Payment, err 
 		return
 	}
 	const sqlQueryTemplate = `
-	SELECT p.id, p.cost, p.currency_id, p.post_id
+	SELECT p.id, p.cost, p.currency_id, p.post_id, p.requisite
 	FROM payments AS p
 	WHERE p.post_id IN `
 
@@ -82,7 +82,7 @@ func (s *storage) SelectPayments(postIDs []int) (payments []models.Payment, err 
 
 	for rows.Next() {
 		var tempPayment models.Payment
-		err = rows.Scan(&tempPayment.ID, &tempPayment.Cost, &tempPayment.Currency, &tempPayment.PostID)
+		err = rows.Scan(&tempPayment.ID, &tempPayment.Cost, &tempPayment.Currency, &tempPayment.PostID, &tempPayment.Requisite)
 		if err != nil {
 			return
 		}
