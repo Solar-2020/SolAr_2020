@@ -3,6 +3,7 @@ package interviewStorage
 import (
 	service "github.com/Solar-2020/GoUtils/http"
 	interviewApi "github.com/Solar-2020/Interview-Backend/pkg/api"
+	interviewModels "github.com/Solar-2020/Interview-Backend/pkg/models"
 	"github.com/Solar-2020/SolAr_Backend_2020/internal/models"
 )
 
@@ -23,7 +24,7 @@ func NewStorageProxy(serviceAddress string) Storage {
 
 func (s *ServiceStorage) InsertInterviews(interviews []models.Interview, postID int) (err error) {
 	endpoint := service.ServiceEndpoint{
-		Service:   	 s,
+		Service:     s,
 		Endpoint:    "/interview/create",
 		Method:      "POST",
 		ContentType: "application/json",
@@ -46,7 +47,7 @@ func (s *ServiceStorage) InsertInterviews(interviews []models.Interview, postID 
 
 func (s *ServiceStorage) SelectInterviews(postIDs []int) (interviews []models.Interview, err error) {
 	endpoint := service.ServiceEndpoint{
-		Service:   	 s,
+		Service:     s,
 		Endpoint:    "/interview",
 		Method:      "POST",
 		ContentType: "application/json",
@@ -62,5 +63,29 @@ func (s *ServiceStorage) SelectInterviews(postIDs []int) (interviews []models.In
 		return
 	}
 	interviews = FromApiInterviews(resp.Interviews)
+	return
+}
+
+func (s *ServiceStorage) SelectInterviewsResults(postIDs []int, userID int) (interviews []interviewModels.InterviewResult, err error) {
+	endpoint := service.ServiceEndpoint{
+		Service:     s,
+		Endpoint:    "/interview/list",
+		Method:      "POST",
+		ContentType: "application/json",
+	}
+
+	message := interviewApi.GetUniversalRequest{
+		PostIDs:         postIDs,
+		UserID:          userID,
+		NotPassedResult: true,
+	}
+
+	resp := interviewApi.GetUniversalResponse{}
+	err = endpoint.Send(message, &resp)
+	if err != nil {
+		return
+	}
+	interviews = resp.Interviews
+	//interviews = FromApiInterviews(resp.Interviews)
 	return
 }

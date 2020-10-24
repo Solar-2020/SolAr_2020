@@ -1,6 +1,9 @@
 package models
 
-import "time"
+import (
+	"github.com/Solar-2020/Interview-Backend/pkg/models"
+	"time"
+)
 
 type GetPostListRequest struct {
 	UserID    int
@@ -50,8 +53,23 @@ type Post struct {
 	Order       int         `json:"-"`
 }
 
+type PostResult struct {
+	ID          int                      `json:"id"`
+	CreateBy    int                      `json:"-"`
+	CreatAt     time.Time                `json:"-"`
+	PublishDate time.Time                `json:"publishDate"`
+	GroupID     int                      `json:"groupID"`
+	Text        string                   `json:"text"`
+	Status      string                   `json:"Status"`
+	Photos      []Photo                  `json:"photos"`
+	Files       []File                   `json:"files"`
+	Interviews  []models.InterviewResult `json:"interviews"`
+	Payments    []Payment                `json:"payments"`
+	Order       int                      `json:"-"`
+}
+
 type Posts struct {
-	Posts []Post
+	Posts []PostResult
 }
 
 func (p *Posts) Len() int {

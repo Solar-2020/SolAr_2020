@@ -2,6 +2,7 @@ package interviewStorage
 
 import (
 	"database/sql"
+	interviewModels "github.com/Solar-2020/Interview-Backend/pkg/models"
 	"github.com/Solar-2020/SolAr_Backend_2020/internal/models"
 	"strconv"
 	"strings"
@@ -10,6 +11,7 @@ import (
 type Storage interface {
 	InsertInterviews(interviews []models.Interview, postID int) (err error)
 	SelectInterviews(postIDs []int) (interviews []models.Interview, err error)
+	SelectInterviewsResults(postIDs []int, userID int) (interviews []interviewModels.InterviewResult, err error)
 }
 
 type storage struct {
@@ -20,6 +22,10 @@ func NewStorage(db *sql.DB) Storage {
 	return &storage{
 		db: db,
 	}
+}
+
+func (s *storage) SelectInterviewsResults(postIDs []int, userID int) (interviews []interviewModels.InterviewResult, err error) {
+	panic("implement me")
 }
 
 func (s *storage) InsertInterviews(interviews []models.Interview, postID int) (err error) {

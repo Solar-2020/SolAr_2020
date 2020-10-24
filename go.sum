@@ -1,9 +1,8 @@
 github.com/DATA-DOG/go-sqlmock v1.5.0/go.mod h1:f/Ixk793poVmq4qj/V1dPUg2JEAKC73Q5eFN3EC/SaM=
-github.com/Solar-2020/GoUtils v0.0.0-20201023223600-e30dd1f13d4f/go.mod h1:S+8e42EZ+g2yD2fcSDn1eag4IEhAXryx5pjxgt7OxNU=
 github.com/Solar-2020/GoUtils v0.0.0-20201024095230-8f259c1d6837 h1:uWBKefwFhuEuL+BXb+cvCrQejp4P5iaxoSu+Qj9fss0=
 github.com/Solar-2020/GoUtils v0.0.0-20201024095230-8f259c1d6837/go.mod h1:S+8e42EZ+g2yD2fcSDn1eag4IEhAXryx5pjxgt7OxNU=
-github.com/Solar-2020/Interview-Backend v0.0.0-20201023223746-e4765b90b352 h1:Z/2EkdhpOkgLznlGzDziEr34s9zpy17VLOiCzdvJMpg=
-github.com/Solar-2020/Interview-Backend v0.0.0-20201023223746-e4765b90b352/go.mod h1:VLAC7o4h2jWkadNHXNLvxt5tkbZntmA2F6GyogrAph8=
+github.com/Solar-2020/Interview-Backend v0.0.1 h1:p4markKfO5aZGV0vibWEUn7Z49NigFuvGgGMZZ6CduY=
+github.com/Solar-2020/Interview-Backend v0.0.1/go.mod h1:Pu8/OgzYAtguzC2KrSgUF5Dt5XQrCSzQuCIQBvmT7Xo=
 github.com/andybalholm/brotli v1.0.0 h1:7UCwP93aiSfvWpapti8g88vVVGp2qqtGyePsSuDafo4=
 github.com/andybalholm/brotli v1.0.0/go.mod h1:loMXtMfwqflxFJPmdbJO0a3KNoPuLBgiu3qAvBg8x/Y=
 github.com/buaazp/fasthttprouter v0.1.1 h1:4oAnN0C3xZjylvZJdP35cxfclyn4TYkW6Y+DSvS+h8Q=

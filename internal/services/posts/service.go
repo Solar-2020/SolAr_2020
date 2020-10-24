@@ -2,13 +2,14 @@ package posts
 
 import (
 	"errors"
+	interviewModels "github.com/Solar-2020/Interview-Backend/pkg/models"
 	"github.com/Solar-2020/SolAr_Backend_2020/internal/models"
 	"sort"
 )
 
 type Service interface {
 	Create(request models.InputPost) (response models.Post, err error)
-	GetList(request models.GetPostListRequest) (response []models.Post, err error)
+	GetList(request models.GetPostListRequest) (response []models.PostResult, err error)
 }
 
 type service struct {
@@ -118,15 +119,15 @@ func (s *service) checkPhotos(photoIDs []int, userID int) (err error) {
 	return
 }
 
-func (s *service) GetList(request models.GetPostListRequest) (response []models.Post, err error) {
+func (s *service) GetList(request models.GetPostListRequest) (response []models.PostResult, err error) {
 	posts, err := s.postsStorage.SelectPosts(request)
 	if err != nil {
 		return
 	}
 
-	postsMap := make(map[int]models.Post)
+	postsMap := make(map[int]models.PostResult)
 	for index, post := range posts {
-		postsMap[post.ID] = models.Post{
+		postsMap[post.ID] = models.PostResult{
 			ID:          post.ID,
 			CreateBy:    post.CreateBy,
 			CreatAt:     post.CreatAt,
@@ -136,7 +137,7 @@ func (s *service) GetList(request models.GetPostListRequest) (response []models.
 			Status:      post.Status,
 			Photos:      make([]models.Photo, 0),
 			Files:       make([]models.File, 0),
-			Interviews:  make([]models.Interview, 0),
+			Interviews:  make([]interviewModels.InterviewResult, 0),
 			Payments:    make([]models.Payment, 0),
 			Order:       index,
 		}
@@ -147,7 +148,11 @@ func (s *service) GetList(request models.GetPostListRequest) (response []models.
 		postIDs = append(postIDs, posts[i].ID)
 	}
 
-	interviews, err := s.interviewStorage.SelectInterviews(postIDs)
+	//interviews, err := s.interviewStorage.SelectInterviews(postIDs)
+	//if err != nil {
+	//	return
+	//}
+	interviews, err := s.interviewStorage.SelectInterviewsResults(postIDs, request.UserID)
 	if err != nil {
 		return
 	}
