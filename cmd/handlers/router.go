@@ -12,6 +12,7 @@ func NewFastHttpRouter(posts postsHandler.Handler, upload uploadHandler.Handler,
 
 	router.PanicHandler = httputils.PanicHandler
 	clientside := httputils.ClientsideChain(middleware)
+
 	router.Handle("GET", "/health", middleware.Log(httputils.HealthCheckHandler))
 
 	router.Handle("POST", "/api/posts/post", clientside(posts.Create))

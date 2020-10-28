@@ -23,6 +23,10 @@ func NewStorageProxy(serviceAddress string) Storage {
 }
 
 func (s *ServiceStorage) InsertInterviews(interviews []models.Interview, postID int) (err error) {
+	if len(interviews) != 0 {
+		return
+	}
+
 	endpoint := service.ServiceEndpoint{
 		Service:     s,
 		Endpoint:    "/interview/create",

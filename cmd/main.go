@@ -73,7 +73,7 @@ func main() {
 	interviewStorage := interviewStorage.NewStorageProxy(config.Config.InterviewService)
 	paymentStorage := paymentStorage.NewStorage(postsDB)
 	postStorage := postStorage.NewStorage(postsDB)
-	postsService := posts.NewService(postStorage, uploadStorage, interviewStorage, paymentStorage)
+	postsService := posts.NewService(postStorage, uploadStorage, interviewStorage, paymentStorage, config.Config.GroupServiceAddress)
 	postsTransport := posts.NewTransport()
 
 	postsHandler := postsHandler.NewHandler(postsService, postsTransport, errorWorker)
@@ -112,11 +112,11 @@ func main() {
 
 func initServices() {
 	authService := authapi.AuthClient{
-		Addr:    config.Config.AuthServiceAddress,
+		Addr: config.Config.AuthServiceAddress,
 	}
 	session.RegisterAuthService(&authService)
 	accountService := asapi.AccountClient{
-		Addr:    config.Config.AccountServiceAddress,
+		Addr: config.Config.AccountServiceAddress,
 	}
 	session.RegisterAccountService(&accountService)
 }
