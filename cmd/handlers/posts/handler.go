@@ -1,12 +1,12 @@
 package postsHandler
 
 import (
-	"github.com/valyala/fasthttp"
+	"github.com/Solar-2020/GoUtils/context"
 )
 
 type Handler interface {
-	Create(ctx *fasthttp.RequestCtx)
-	GetList(ctx *fasthttp.RequestCtx)
+	Create(ctx context.Context)
+	GetList(ctx context.Context)
 }
 
 type handler struct {
@@ -23,60 +23,50 @@ func NewHandler(postService postService, postTransport postTransport, errorWorke
 	}
 }
 
-func (h *handler) Create(ctx *fasthttp.RequestCtx) {
-	post, err := h.postTransport.CreateDecode(ctx)
+func (h *handler) Create(ctx context.Context) {
+	post, err := h.postTransport.CreateDecode(ctx.RequestCtx)
 	if err != nil {
-		err = h.errorWorker.ServeJSONError(ctx, err)
-		if err != nil {
-			h.errorWorker.ServeFatalError(ctx)
-		}
+		h.handleError(err, ctx)
 		return
 	}
 
-	postReturn, err := h.postService.Create(post)
+	postReturn, err := h.postService.Create(ctx, post)
 	if err != nil {
-		err = h.errorWorker.ServeJSONError(ctx, err)
-		if err != nil {
-			h.errorWorker.ServeFatalError(ctx)
-		}
+		h.handleError(err, ctx)
 		return
 	}
 
-	err = h.postTransport.CreateEncode(postReturn, ctx)
+	err = h.postTransport.CreateEncode(postReturn, ctx.RequestCtx)
 	if err != nil {
-		err = h.errorWorker.ServeJSONError(ctx, err)
-		if err != nil {
-			h.errorWorker.ServeFatalError(ctx)
-		}
+		h.handleError(err, ctx)
 		return
 	}
 }
 
-func (h *handler) GetList(ctx *fasthttp.RequestCtx) {
-	getPostListRequest, err := h.postTransport.GetListDecode(ctx)
+func (h *handler) GetList(ctx context.Context) {
+	getPostListRequest, err := h.postTransport.GetListDecode(ctx.RequestCtx)
 	if err != nil {
-		err = h.errorWorker.ServeJSONError(ctx, err)
-		if err != nil {
-			h.errorWorker.ServeFatalError(ctx)
-		}
+		h.handleError(err, ctx)
 		return
 	}
 
-	postReturn, err := h.postService.GetList(getPostListRequest)
+	postReturn, err := h.postService.GetList(ctx, getPostListRequest)
 	if err != nil {
-		err = h.errorWorker.ServeJSONError(ctx, err)
-		if err != nil {
-			h.errorWorker.ServeFatalError(ctx)
-		}
+		h.handleError(err, ctx)
 		return
 	}
 
-	err = h.postTransport.GetListEncode(postReturn, ctx)
+	err = h.postTransport.GetListEncode(postReturn, ctx.RequestCtx)
 	if err != nil {
-		err = h.errorWorker.ServeJSONError(ctx, err)
-		if err != nil {
-			h.errorWorker.ServeFatalError(ctx)
-		}
+		h.handleError(err, ctx)
 		return
 	}
+}
+
+func (h *handler) handleError(err error, ctx context.Context) {
+	err = h.errorWorker.ServeJSONError(ctx.RequestCtx, err)
+	if err != nil {
+		h.errorWorker.ServeFatalError(ctx.RequestCtx)
+	}
+	return
 }

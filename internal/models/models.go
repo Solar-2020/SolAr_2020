@@ -105,3 +105,9 @@ type Payment struct {
 	PostID    int    `json:"postID"`
 	Requisite string `json:"requisite"`
 }
+
+type AclAction int
+const (
+	ActionGetList AclAction = iota
+	ActionCreatePost
+)

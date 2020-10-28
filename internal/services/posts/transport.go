@@ -24,14 +24,14 @@ func NewTransport() Transport {
 
 func (t transport) CreateDecode(ctx *fasthttp.RequestCtx) (request models.InputPost, err error) {
 	//userID := ctx.Value("UserID").(int)
-	userID := 1
+	//userID := 1
 	var inputPost models.InputPost
 	err = json.Unmarshal(ctx.Request.Body(), &inputPost)
 	if err != nil {
 		return
 	}
 	inputPost.PublishDate = time.Now()
-	inputPost.CreateBy = userID
+	//inputPost.CreateBy = userID
 	request = inputPost
 	return
 }
@@ -50,7 +50,7 @@ func (t transport) CreateEncode(response models.Post, ctx *fasthttp.RequestCtx) 
 func (t transport) GetListDecode(ctx *fasthttp.RequestCtx) (request models.GetPostListRequest, err error) {
 	//userID := ctx.Value("UserID").(int)
 	//request.UserID = ctx.Value("UserID").(int)
-	request.UserID = 1
+	//request.UserID = 1
 	request.GroupID = ctx.QueryArgs().GetUintOrZero("groupID")
 	request.Limit = ctx.QueryArgs().GetUintOrZero("limit")
 

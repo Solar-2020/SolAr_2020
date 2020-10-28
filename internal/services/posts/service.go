@@ -2,14 +2,18 @@ package posts
 
 import (
 	"errors"
+	"fmt"
+	"github.com/Solar-2020/GoUtils/context"
+	groupapi "github.com/Solar-2020/Group-Backend/pkg/api"
 	interviewModels "github.com/Solar-2020/Interview-Backend/pkg/models"
+	"github.com/Solar-2020/SolAr_Backend_2020/cmd/config"
 	"github.com/Solar-2020/SolAr_Backend_2020/internal/models"
 	"sort"
 )
 
 type Service interface {
-	Create(request models.InputPost) (response models.Post, err error)
-	GetList(request models.GetPostListRequest) (response []models.PostResult, err error)
+	Create(ctx context.Context, request models.InputPost) (response models.Post, err error)
+	GetList(ctx context.Context, request models.GetPostListRequest) (response []models.PostResult, err error)
 }
 
 type service struct {
@@ -28,10 +32,20 @@ func NewService(postsStorage postStorage, uploadStorage uploadStorage, interview
 	}
 }
 
-func (s *service) Create(request models.InputPost) (response models.Post, err error) {
+func (s *service) Create(ctx context.Context, request models.InputPost) (response models.Post, err error) {
+	if request.CreateBy == 0 {
+		request.CreateBy = ctx.Session.Uid
+	}
 	if err = s.validateCreate(request); err != nil {
 		return
 	}
+
+	err = s.CheckPostsPermission(ctx, ctx.Session.Uid, request.GroupID)
+	if err != nil {
+		err = fmt.Errorf("restricted")
+		return
+	}
+
 
 	if err = s.checkGroup(request.GroupID, request.CreateBy); err != nil {
 		return
@@ -119,7 +133,15 @@ func (s *service) checkPhotos(photoIDs []int, userID int) (err error) {
 	return
 }
 
-func (s *service) GetList(request models.GetPostListRequest) (response []models.PostResult, err error) {
+func (s *service) GetList(ctx context.Context, request models.GetPostListRequest) (response []models.PostResult, err error) {
+	if request.UserID == 0 {
+		request.UserID = ctx.Session.Uid
+	}
+	err = s.CheckPostsPermission(ctx, request.UserID, request.GroupID)
+	if err != nil {
+		err = fmt.Errorf("restricted")
+		return
+	}
 	posts, err := s.postsStorage.SelectPosts(request)
 	if err != nil {
 		return
@@ -224,4 +246,21 @@ func (s *service) GetList(request models.GetPostListRequest) (response []models.
 	sort.Sort(&sortPost)
 
 	return sortPost.Posts, nil
+}
+
+func (s *service) CheckPostsPermission(ctx context.Context, uid int, groupID int) error {
+	client := groupapi.GroupClient{
+		Addr:    config.Config.GroupServiceAddress,
+	}
+	res, err := client.UsersGroupsPreview(uid, groupID)
+	if err != nil {
+		return err
+	}
+	if len(res) != 1 {
+		return fmt.Errorf("no permission")
+	}
+	if res[0].UserID != uid {
+		return fmt.Errorf("bad result")
+	}
+	return nil
 }

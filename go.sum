@@ -1,6 +1,13 @@
 github.com/DATA-DOG/go-sqlmock v1.5.0/go.mod h1:f/Ixk793poVmq4qj/V1dPUg2JEAKC73Q5eFN3EC/SaM=
+github.com/Solar-2020/Authorization-Backend v0.0.0-20201023140203-006ac9d46b01/go.mod h1:UEtA47dpMdxZrtxAczlMZcumEa/yq+r4TX4PLkxWGr4=
+github.com/Solar-2020/Authorization-Backend v0.0.0-20201027204158-15670a9b5d96 h1:vIDtDHfz/QpQGbYGY6vJN9gj6oJwA0m8MrIYTNwRwUU=
+github.com/Solar-2020/Authorization-Backend v0.0.0-20201027204158-15670a9b5d96/go.mod h1:6Jy1cLGSIUoL1iJghRw0yYX8dEvZ7M1klGXm0RWCVk4=
 github.com/Solar-2020/GoUtils v0.0.0-20201024095230-8f259c1d6837 h1:uWBKefwFhuEuL+BXb+cvCrQejp4P5iaxoSu+Qj9fss0=
 github.com/Solar-2020/GoUtils v0.0.0-20201024095230-8f259c1d6837/go.mod h1:S+8e42EZ+g2yD2fcSDn1eag4IEhAXryx5pjxgt7OxNU=
+github.com/Solar-2020/GoUtils v0.0.0-20201026171357-1ce3d6989804/go.mod h1:JgUyQ2m5+AxfNqe6/llRQGOxCeisBqBn/sp3Wt/elhU=
+github.com/Solar-2020/GoUtils v0.0.0-20201027194059-562c66fd0229 h1:PN1Nps2t0eI0a6KHFczS4KqTwFwFypqVyx4rqnitRUA=
+github.com/Solar-2020/GoUtils v0.0.0-20201027194059-562c66fd0229/go.mod h1:Wu4hDJE3n5Fc5YbM7iXETrYWXso2HKSWdlZUz4cA1Ng=
+github.com/Solar-2020/Group-Backend v0.0.0-20201021120207-2dab5f857562/go.mod h1:f4P9zb4rzC23LGKCqBYGVhAe79bpGny+Y3M7Hmk32DU=
 github.com/Solar-2020/Interview-Backend v0.0.1 h1:p4markKfO5aZGV0vibWEUn7Z49NigFuvGgGMZZ6CduY=
 github.com/Solar-2020/Interview-Backend v0.0.1/go.mod h1:Pu8/OgzYAtguzC2KrSgUF5Dt5XQrCSzQuCIQBvmT7Xo=
 github.com/andybalholm/brotli v1.0.0 h1:7UCwP93aiSfvWpapti8g88vVVGp2qqtGyePsSuDafo4=

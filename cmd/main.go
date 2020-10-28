@@ -2,11 +2,14 @@ package main
 
 import (
 	"database/sql"
+	authapi "github.com/Solar-2020/Authorization-Backend/pkg/api"
+	"github.com/Solar-2020/GoUtils/context/session"
 	httputils "github.com/Solar-2020/GoUtils/http"
+	"github.com/Solar-2020/GoUtils/http/errorWorker"
+	"github.com/Solar-2020/SolAr_Backend_2020/cmd/config"
 	"github.com/Solar-2020/SolAr_Backend_2020/cmd/handlers"
 	postsHandler "github.com/Solar-2020/SolAr_Backend_2020/cmd/handlers/posts"
 	uploadHandler "github.com/Solar-2020/SolAr_Backend_2020/cmd/handlers/upload"
-	"github.com/Solar-2020/SolAr_Backend_2020/internal/errorWorker"
 	"github.com/Solar-2020/SolAr_Backend_2020/internal/services/posts"
 	"github.com/Solar-2020/SolAr_Backend_2020/internal/services/upload"
 	"github.com/Solar-2020/SolAr_Backend_2020/internal/storages/interviewStorage"
@@ -25,14 +28,13 @@ import (
 func main() {
 	log := zerolog.New(zerolog.ConsoleWriter{Out: os.Stdout})
 
-	var cfg config
-	err := envconfig.Process("", &cfg)
+	err := envconfig.Process("", &config.Config)
 	if err != nil {
 		log.Fatal().Msg(err.Error())
 		return
 	}
 
-	postsDB, err := sql.Open("postgres", cfg.PostsDataBaseConnectionString)
+	postsDB, err := sql.Open("postgres", config.Config.PostsDataBaseConnectionString)
 	if err != nil {
 		log.Fatal().Msg(err.Error())
 		return
@@ -41,7 +43,7 @@ func main() {
 	postsDB.SetMaxIdleConns(5)
 	postsDB.SetMaxOpenConns(10)
 
-	uploadDB, err := sql.Open("postgres", cfg.UploadDataBaseConnectionString)
+	uploadDB, err := sql.Open("postgres", config.Config.UploadDataBaseConnectionString)
 	if err != nil {
 		log.Fatal().Msg(err.Error())
 		return
@@ -61,19 +63,24 @@ func main() {
 
 	errorWorker := errorWorker.NewErrorWorker()
 
-	uploadStorage := uploadStorage.NewStorage(cfg.PhotoPath, cfg.FilePath, uploadDB)
+	uploadStorage := uploadStorage.NewStorage(config.Config.PhotoPath, config.Config.FilePath, uploadDB)
 	uploadService := upload.NewService(uploadStorage)
 	uploadTransport := upload.NewTransport()
 	uploadHandler := uploadHandler.NewHandler(uploadService, uploadTransport, errorWorker)
 
 	//interviewStorage := interviewStorage.NewStorage(postsDB)
-	interviewStorage := interviewStorage.NewStorageProxy(cfg.InterviewService)
+	interviewStorage := interviewStorage.NewStorageProxy(config.Config.InterviewService)
 	paymentStorage := paymentStorage.NewStorage(postsDB)
 	postStorage := postStorage.NewStorage(postsDB)
 	postsService := posts.NewService(postStorage, uploadStorage, interviewStorage, paymentStorage)
 	postsTransport := posts.NewTransport()
 
 	postsHandler := postsHandler.NewHandler(postsService, postsTransport, errorWorker)
+
+	authService := authapi.AuthClient{
+		Addr:    config.Config.AuthServiceAddress,
+	}
+	session.RegisterAuthService(&authService)
 
 	middlewares := httputils.NewMiddleware()
 
@@ -82,8 +89,8 @@ func main() {
 	}
 
 	go func() {
-		log.Info().Str("msg", "start server").Str("port", cfg.Port).Send()
-		if err := server.ListenAndServe(":" + cfg.Port); err != nil {
+		log.Info().Str("msg", "start server").Str("port", config.Config.Port).Send()
+		if err := server.ListenAndServe(":" + config.Config.Port); err != nil {
 			log.Error().Str("msg", "server run failure").Err(err).Send()
 			os.Exit(1)
 		}
