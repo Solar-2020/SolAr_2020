@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	asapi "github.com/Solar-2020/Account-Backend/pkg/api"
 	authapi "github.com/Solar-2020/Authorization-Backend/pkg/api"
 	"github.com/Solar-2020/GoUtils/context/session"
 	httputils "github.com/Solar-2020/GoUtils/http"
@@ -77,12 +78,9 @@ func main() {
 
 	postsHandler := postsHandler.NewHandler(postsService, postsTransport, errorWorker)
 
-	authService := authapi.AuthClient{
-		Addr:    config.Config.AuthServiceAddress,
-	}
-	session.RegisterAuthService(&authService)
-
 	middlewares := httputils.NewMiddleware()
+
+	initServices()
 
 	server := fasthttp.Server{
 		Handler: handlers.NewFastHttpRouter(postsHandler, uploadHandler, middlewares).Handler,
@@ -110,4 +108,15 @@ func main() {
 		//dbConnection.Shutdown()
 		log.Info().Str("msg", "goodbye").Send()
 	}(<-c)
+}
+
+func initServices() {
+	authService := authapi.AuthClient{
+		Addr:    config.Config.AuthServiceAddress,
+	}
+	session.RegisterAuthService(&authService)
+	accountService := asapi.AccountClient{
+		Addr:    config.Config.AccountServiceAddress,
+	}
+	session.RegisterAccountService(&accountService)
 }

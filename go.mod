@@ -3,10 +3,11 @@ module github.com/Solar-2020/SolAr_Backend_2020
 go 1.14
 
 require (
-	github.com/Solar-2020/Authorization-Backend v0.0.0-20201027204158-15670a9b5d96
-	github.com/Solar-2020/GoUtils v0.0.0-20201027194059-562c66fd0229
-	github.com/Solar-2020/Group-Backend v0.0.0-20201021120207-2dab5f857562
-	github.com/Solar-2020/Interview-Backend v0.0.1
+	github.com/Solar-2020/Account-Backend v1.0.0
+	github.com/Solar-2020/Authorization-Backend v1.0.0
+	github.com/Solar-2020/GoUtils v0.0.0-20201028130128-34e4f0f5a23d
+	github.com/Solar-2020/Group-Backend v1.0.0
+	github.com/Solar-2020/Interview-Backend v1.0.0
 	github.com/buaazp/fasthttprouter v0.1.1
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/lib/pq v1.8.0
@@ -19,3 +20,5 @@ require (
 // replace github.com/Solar-2020/Authorization-Backend => ../Authorization-Backend
 
 // replace github.com/Solar-2020/GoUtils => ../GoUtils
+
+// replace github.com/Solar-2020/Account-Backend => ../Account-Backend
