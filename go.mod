@@ -3,8 +3,8 @@ module github.com/Solar-2020/SolAr_Backend_2020
 go 1.14
 
 require (
-	github.com/Solar-2020/Account-Backend v1.0.0
-	github.com/Solar-2020/Authorization-Backend v1.0.0
+	github.com/Solar-2020/Account-Backend v1.0.1
+	github.com/Solar-2020/Authorization-Backend v1.0.1
 	github.com/Solar-2020/GoUtils v1.0.1
 	github.com/Solar-2020/Group-Backend v1.0.0
 	github.com/Solar-2020/Interview-Backend v1.0.0
