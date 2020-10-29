@@ -4,8 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"github.com/Solar-2020/GoUtils/context"
-	groupapi "github.com/Solar-2020/Group-Backend/pkg/api"
 	interviewModels "github.com/Solar-2020/Interview-Backend/pkg/models"
+	"github.com/Solar-2020/SolAr_Backend_2020/internal/clients/group"
 	"github.com/Solar-2020/SolAr_Backend_2020/internal/models"
 	"sort"
 )
@@ -16,20 +16,20 @@ type Service interface {
 }
 
 type service struct {
-	postsStorage        postStorage
-	uploadStorage       uploadStorage
-	interviewStorage    interviewStorage
-	paymentStorage      paymentStorage
-	groupServiceAddress string
+	postsStorage     postStorage
+	uploadStorage    uploadStorage
+	interviewStorage interviewStorage
+	paymentStorage   paymentStorage
+	groupClient      group.Client
 }
 
-func NewService(postsStorage postStorage, uploadStorage uploadStorage, interviewStorage interviewStorage, paymentStorage paymentStorage, groupServiceAddress string) Service {
+func NewService(postsStorage postStorage, uploadStorage uploadStorage, interviewStorage interviewStorage, paymentStorage paymentStorage, groupClient group.Client) Service {
 	return &service{
-		postsStorage:        postsStorage,
-		uploadStorage:       uploadStorage,
-		interviewStorage:    interviewStorage,
-		paymentStorage:      paymentStorage,
-		groupServiceAddress: groupServiceAddress,
+		postsStorage:     postsStorage,
+		uploadStorage:    uploadStorage,
+		interviewStorage: interviewStorage,
+		paymentStorage:   paymentStorage,
+		groupClient:      groupClient,
 	}
 }
 
@@ -41,10 +41,14 @@ func (s *service) Create(ctx context.Context, request models.InputPost) (respons
 		return
 	}
 
-	err = s.CheckPostsPermission(ctx, request.CreateBy, request.GroupID)
+	roleID, err := s.groupClient.GetUserRole(request.CreateBy, request.GroupID)
 	if err != nil {
 		err = fmt.Errorf("restricted")
 		return
+	}
+
+	if roleID > 2 {
+		return response, errors.New("permission denied")
 	}
 
 	if err = s.checkGroup(request.GroupID, request.CreateBy); err != nil {
@@ -138,10 +142,14 @@ func (s *service) GetList(ctx context.Context, request models.GetPostListRequest
 	if request.UserID == 0 {
 		request.UserID = ctx.Session.Uid
 	}
-	err = s.CheckPostsPermission(ctx, request.UserID, request.GroupID)
+	roleID, err := s.groupClient.GetUserRole(request.UserID, request.GroupID)
 	if err != nil {
 		err = fmt.Errorf("restricted")
 		return
+	}
+
+	if roleID > 3 {
+		return response, errors.New("permission denied")
 	}
 
 	posts, err := s.postsStorage.SelectPosts(request)
@@ -248,21 +256,4 @@ func (s *service) GetList(ctx context.Context, request models.GetPostListRequest
 	sort.Sort(&sortPost)
 
 	return sortPost.Posts, nil
-}
-
-func (s *service) CheckPostsPermission(ctx context.Context, uid int, groupID int) error {
-	client := groupapi.GroupClient{
-		Addr: s.groupServiceAddress,
-	}
-	res, err := client.UsersGroupsPreview(uid, groupID)
-	if err != nil {
-		return err
-	}
-	if len(res) != 1 {
-		return fmt.Errorf("no permission")
-	}
-	if res[0].UserID != uid {
-		return fmt.Errorf("bad result")
-	}
-	return nil
 }

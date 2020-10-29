@@ -11,6 +11,7 @@ import (
 	"github.com/Solar-2020/SolAr_Backend_2020/cmd/handlers"
 	postsHandler "github.com/Solar-2020/SolAr_Backend_2020/cmd/handlers/posts"
 	uploadHandler "github.com/Solar-2020/SolAr_Backend_2020/cmd/handlers/upload"
+	"github.com/Solar-2020/SolAr_Backend_2020/internal/clients/group"
 	"github.com/Solar-2020/SolAr_Backend_2020/internal/services/posts"
 	"github.com/Solar-2020/SolAr_Backend_2020/internal/services/upload"
 	"github.com/Solar-2020/SolAr_Backend_2020/internal/storages/interviewStorage"
@@ -61,6 +62,7 @@ func main() {
 
 	//userDB.SetMaxIdleConns(5)
 	//userDB.SetMaxOpenConns(10)
+	groupClient := group.NewClient(config.Config.GroupServiceAddress, config.Config.ServerSecret)
 
 	errorWorker := errorWorker.NewErrorWorker()
 
@@ -73,7 +75,7 @@ func main() {
 	interviewStorage := interviewStorage.NewStorageProxy(config.Config.InterviewService)
 	paymentStorage := paymentStorage.NewStorage(postsDB)
 	postStorage := postStorage.NewStorage(postsDB)
-	postsService := posts.NewService(postStorage, uploadStorage, interviewStorage, paymentStorage, config.Config.GroupServiceAddress)
+	postsService := posts.NewService(postStorage, uploadStorage, interviewStorage, paymentStorage, groupClient)
 	postsTransport := posts.NewTransport()
 
 	postsHandler := postsHandler.NewHandler(postsService, postsTransport, errorWorker)
