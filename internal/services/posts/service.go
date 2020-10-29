@@ -41,7 +41,7 @@ func (s *service) Create(ctx context.Context, request models.InputPost) (respons
 		return
 	}
 
-	err = s.CheckPostsPermission(ctx, ctx.Session.Uid, request.GroupID)
+	err = s.CheckPostsPermission(ctx, request.CreateBy, request.GroupID)
 	if err != nil {
 		err = fmt.Errorf("restricted")
 		return
