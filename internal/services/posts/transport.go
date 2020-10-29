@@ -2,6 +2,7 @@ package posts
 
 import (
 	"encoding/json"
+	"errors"
 	"github.com/Solar-2020/SolAr_Backend_2020/internal/models"
 	"github.com/valyala/fasthttp"
 	"time"
@@ -30,14 +31,13 @@ func (t transport) CreateDecode(ctx *fasthttp.RequestCtx) (request models.InputP
 	}
 	inputPost.PublishDate = time.Now()
 
-return inputPost, nil
-	//userID, ok := ctx.UserValue("userID").(int)
-	//if ok {
-	//	request = inputPost
-	//	request.CreateBy = userID
-	//	return
-	//}
-	//return request, errors.New("userID not found")
+	userID, ok := ctx.UserValue("userID").(int)
+	if ok {
+		request = inputPost
+		request.CreateBy = userID
+		return
+	}
+	return request, errors.New("userID not found")
 }
 
 func (t transport) CreateEncode(response models.Post, ctx *fasthttp.RequestCtx) (err error) {
