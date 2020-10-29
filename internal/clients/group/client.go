@@ -45,6 +45,7 @@ func (c *client) GetUserRole(userID, groupID int) (roleID int, err error) {
 	q := req.URL.Query()
 	q.Add("user_id", strconv.Itoa(userID))
 	q.Add("group_id", strconv.Itoa(groupID))
+	req.URL.RawQuery = q.Encode()
 	req.Header.Set("Authorization", c.secret)
 
 	resp, err := http.DefaultClient.Do(req)
@@ -65,9 +66,9 @@ func (c *client) GetUserRole(userID, groupID int) (roleID int, err error) {
 		if err != nil {
 			return
 		}
-		return userID, err
+		return roleID, err
 	default:
-		return userID, errors.New("Unexpected Server Error")
+		return roleID, errors.New("Unexpected Server Error")
 	}
 }
 

@@ -1,14 +1,13 @@
 package postsHandler
 
 import (
-	"github.com/Solar-2020/GoUtils/context"
 	"github.com/Solar-2020/SolAr_Backend_2020/internal/models"
 	"github.com/valyala/fasthttp"
 )
 
 type postService interface {
-	Create(ctx context.Context, request models.InputPost) (response models.Post, err error)
-	GetList(ctx context.Context, request models.GetPostListRequest) (response []models.PostResult, err error)
+	Create(request models.InputPost) (response models.Post, err error)
+	GetList(request models.GetPostListRequest) (response []models.PostResult, err error)
 }
 
 type postTransport interface {

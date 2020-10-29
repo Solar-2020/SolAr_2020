@@ -7,19 +7,19 @@ import (
 	"github.com/buaazp/fasthttprouter"
 )
 
-func NewFastHttpRouter(posts postsHandler.Handler, upload uploadHandler.Handler, middleware httputils.Middleware) *fasthttprouter.Router {
+func NewFastHttpRouter(posts postsHandler.Handler, upload uploadHandler.Handler, middleware Middleware) *fasthttprouter.Router {
 	router := fasthttprouter.New()
 
 	router.PanicHandler = httputils.PanicHandler
-	clientside := httputils.ClientsideChain(middleware)
 
 	router.Handle("GET", "/health", middleware.Log(httputils.HealthCheckHandler))
 
-	router.Handle("POST", "/api/posts/post", clientside(posts.Create))
-	router.Handle("GET", "/api/posts/posts", clientside(posts.GetList))
+	router.Handle("POST", "/api/posts/post", middleware.Log(middleware.ExternalAuth(posts.Create)))
+	//router.Handle("POST", "/api/posts/post", posts.Create)
+	router.Handle("GET", "/api/posts/posts", middleware.Log(middleware.ExternalAuth(posts.GetList)))
 
-	router.Handle("POST", "/api/upload/photo", clientside(upload.Photo))
-	router.Handle("POST", "/api/upload/file", clientside(upload.File))
+	router.Handle("POST", "/api/upload/photo", middleware.Log(middleware.ExternalAuth(upload.Photo)))
+	router.Handle("POST", "/api/upload/file", middleware.Log(middleware.ExternalAuth(upload.File)))
 
 	return router
 }

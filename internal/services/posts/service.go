@@ -3,7 +3,6 @@ package posts
 import (
 	"errors"
 	"fmt"
-	"github.com/Solar-2020/GoUtils/context"
 	interviewModels "github.com/Solar-2020/Interview-Backend/pkg/models"
 	"github.com/Solar-2020/SolAr_Backend_2020/internal/clients/group"
 	"github.com/Solar-2020/SolAr_Backend_2020/internal/models"
@@ -11,8 +10,8 @@ import (
 )
 
 type Service interface {
-	Create(ctx context.Context, request models.InputPost) (response models.Post, err error)
-	GetList(ctx context.Context, request models.GetPostListRequest) (response []models.PostResult, err error)
+	Create(request models.InputPost) (response models.Post, err error)
+	GetList(request models.GetPostListRequest) (response []models.PostResult, err error)
 }
 
 type service struct {
@@ -33,10 +32,7 @@ func NewService(postsStorage postStorage, uploadStorage uploadStorage, interview
 	}
 }
 
-func (s *service) Create(ctx context.Context, request models.InputPost) (response models.Post, err error) {
-	if request.CreateBy == 0 {
-		request.CreateBy = ctx.Session.Uid
-	}
+func (s *service) Create(request models.InputPost) (response models.Post, err error) {
 	if err = s.validateCreate(request); err != nil {
 		return
 	}
@@ -137,11 +133,7 @@ func (s *service) checkPhotos(photoIDs []int, userID int) (err error) {
 	return
 }
 
-func (s *service) GetList(ctx context.Context, request models.GetPostListRequest) (response []models.PostResult, err error) {
-	response = make([]models.PostResult, 0)
-	if request.UserID == 0 {
-		request.UserID = ctx.Session.Uid
-	}
+func (s *service) GetList(request models.GetPostListRequest) (response []models.PostResult, err error) {
 	roleID, err := s.groupClient.GetUserRole(request.UserID, request.GroupID)
 	if err != nil {
 		err = fmt.Errorf("restricted")

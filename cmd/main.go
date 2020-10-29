@@ -5,12 +5,12 @@ import (
 	asapi "github.com/Solar-2020/Account-Backend/pkg/api"
 	authapi "github.com/Solar-2020/Authorization-Backend/pkg/api"
 	"github.com/Solar-2020/GoUtils/context/session"
-	httputils "github.com/Solar-2020/GoUtils/http"
 	"github.com/Solar-2020/GoUtils/http/errorWorker"
 	"github.com/Solar-2020/SolAr_Backend_2020/cmd/config"
 	"github.com/Solar-2020/SolAr_Backend_2020/cmd/handlers"
 	postsHandler "github.com/Solar-2020/SolAr_Backend_2020/cmd/handlers/posts"
 	uploadHandler "github.com/Solar-2020/SolAr_Backend_2020/cmd/handlers/upload"
+	"github.com/Solar-2020/SolAr_Backend_2020/internal/clients/auth"
 	"github.com/Solar-2020/SolAr_Backend_2020/internal/clients/group"
 	"github.com/Solar-2020/SolAr_Backend_2020/internal/services/posts"
 	"github.com/Solar-2020/SolAr_Backend_2020/internal/services/upload"
@@ -80,7 +80,9 @@ func main() {
 
 	postsHandler := postsHandler.NewHandler(postsService, postsTransport, errorWorker)
 
-	middlewares := httputils.NewMiddleware()
+	authClient := auth.NewClient(config.Config.AuthServiceAddress, config.Config.ServerSecret)
+
+	middlewares := handlers.NewMiddleware(&log, authClient)
 
 	initServices()
 

@@ -1,12 +1,12 @@
 package uploadHandler
 
 import (
-	"github.com/Solar-2020/GoUtils/context"
+	"github.com/valyala/fasthttp"
 )
 
 type Handler interface {
-	File(ctx context.Context)
-	Photo(ctx context.Context)
+	File(ctx *fasthttp.RequestCtx)
+	Photo(ctx *fasthttp.RequestCtx)
 }
 
 type handler struct {
@@ -23,8 +23,8 @@ func NewHandler(uploadService uploadService, uploadTransport uploadTransport, er
 	}
 }
 
-func (h *handler) File(ctx context.Context) {
-	request, err := h.uploadTransport.FileDecode(ctx.RequestCtx)
+func (h *handler) File(ctx *fasthttp.RequestCtx) {
+	request, err := h.uploadTransport.FileDecode(ctx)
 	if err != nil {
 		h.handleError(err, ctx)
 		return
@@ -36,15 +36,15 @@ func (h *handler) File(ctx context.Context) {
 		return
 	}
 
-	err = h.uploadTransport.FileEncode(response, ctx.RequestCtx)
+	err = h.uploadTransport.FileEncode(response, ctx)
 	if err != nil {
 		h.handleError(err, ctx)
 		return
 	}
 }
 
-func (h *handler) Photo(ctx context.Context) {
-	request, err := h.uploadTransport.PhotoDecode(ctx.RequestCtx)
+func (h *handler) Photo(ctx *fasthttp.RequestCtx) {
+	request, err := h.uploadTransport.PhotoDecode(ctx)
 	if err != nil {
 		h.handleError(err, ctx)
 		return
@@ -56,17 +56,17 @@ func (h *handler) Photo(ctx context.Context) {
 		return
 	}
 
-	err = h.uploadTransport.PhotoEncode(response, ctx.RequestCtx)
+	err = h.uploadTransport.PhotoEncode(response, ctx)
 	if err != nil {
 		h.handleError(err, ctx)
 		return
 	}
 }
 
-func (h *handler) handleError(err error, ctx context.Context) {
-	err = h.errorWorker.ServeJSONError(ctx.RequestCtx, err)
+func (h *handler) handleError(err error, ctx *fasthttp.RequestCtx) {
+	err = h.errorWorker.ServeJSONError(ctx, err)
 	if err != nil {
-		h.errorWorker.ServeFatalError(ctx.RequestCtx)
+		h.errorWorker.ServeFatalError(ctx)
 	}
 	return
 }

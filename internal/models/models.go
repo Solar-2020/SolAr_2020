@@ -26,7 +26,7 @@ type MainPost struct {
 
 type InputPost struct {
 	ID          int         `json:"id"`
-	CreateBy    int         `json:"-"`
+	CreateBy    int         `json:"createBy"`
 	CreatAt     time.Time   `json:"-"`
 	PublishDate time.Time   `json:"publishDate"`
 	GroupID     int         `json:"groupID"`

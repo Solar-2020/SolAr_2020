@@ -23,17 +23,21 @@ func NewTransport() Transport {
 }
 
 func (t transport) CreateDecode(ctx *fasthttp.RequestCtx) (request models.InputPost, err error) {
-	//userID := ctx.Value("UserID").(int)
-	//userID := 1
 	var inputPost models.InputPost
 	err = json.Unmarshal(ctx.Request.Body(), &inputPost)
 	if err != nil {
 		return
 	}
 	inputPost.PublishDate = time.Now()
-	//inputPost.CreateBy = userID
-	request = inputPost
-	return
+
+return inputPost, nil
+	//userID, ok := ctx.UserValue("userID").(int)
+	//if ok {
+	//	request = inputPost
+	//	request.CreateBy = userID
+	//	return
+	//}
+	//return request, errors.New("userID not found")
 }
 
 func (t transport) CreateEncode(response models.Post, ctx *fasthttp.RequestCtx) (err error) {
@@ -48,9 +52,6 @@ func (t transport) CreateEncode(response models.Post, ctx *fasthttp.RequestCtx) 
 }
 
 func (t transport) GetListDecode(ctx *fasthttp.RequestCtx) (request models.GetPostListRequest, err error) {
-	//userID := ctx.Value("UserID").(int)
-	//request.UserID = ctx.Value("UserID").(int)
-	//request.UserID = 12
 	request.GroupID = ctx.QueryArgs().GetUintOrZero("groupID")
 	request.Limit = ctx.QueryArgs().GetUintOrZero("limit")
 
@@ -59,7 +60,11 @@ func (t transport) GetListDecode(ctx *fasthttp.RequestCtx) (request models.GetPo
 	if err != nil {
 		return
 	}
-
+	userID, ok := ctx.UserValue("userID").(int)
+	if ok {
+		request.UserID = userID
+		return
+	}
 	return
 }
 
