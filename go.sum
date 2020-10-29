@@ -8,6 +8,7 @@ github.com/Solar-2020/Authorization-Backend v1.0.0 h1:QBD9z9CAZ4AXwtuKAfI5U8+Z69
 github.com/Solar-2020/Authorization-Backend v1.0.0/go.mod h1:AAajUafxec6xymGXXkf/bofjxiL+GSrNqywK44YBEGE=
 github.com/Solar-2020/GoUtils v0.0.0-20201028130128-34e4f0f5a23d h1:8/YS6274xzbhMxPNRCmtuRchbLNya34PPWcfzogS5P0=
 github.com/Solar-2020/GoUtils v0.0.0-20201028130128-34e4f0f5a23d/go.mod h1:JgUyQ2m5+AxfNqe6/llRQGOxCeisBqBn/sp3Wt/elhU=
+github.com/Solar-2020/GoUtils v1.0.1/go.mod h1:JgUyQ2m5+AxfNqe6/llRQGOxCeisBqBn/sp3Wt/elhU=
 github.com/Solar-2020/Group-Backend v1.0.0 h1:Zz4Nm+f/eFvktG+LrbLnvPWgI7nqNz27WggXRzZRVeg=
 github.com/Solar-2020/Group-Backend v1.0.0/go.mod h1:DHHxW6CbguGNfloam8BwWor6XY2jQJeNP+9WpZq4UuQ=
 github.com/Solar-2020/Interview-Backend v1.0.0 h1:oEZa2BpbheNUaoPKrvKh2a7POCfmExgjqM8ax8LVeUs=

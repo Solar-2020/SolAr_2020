@@ -29,7 +29,7 @@ func (s *ServiceStorage) InsertInterviews(interviews []models.Interview, postID 
 
 	endpoint := service.ServiceEndpoint{
 		Service:     s,
-		Endpoint:    "/interview/create",
+		Endpoint:    "/api/interview/create",
 		Method:      "POST",
 		ContentType: "application/json",
 	}
@@ -52,7 +52,7 @@ func (s *ServiceStorage) InsertInterviews(interviews []models.Interview, postID 
 func (s *ServiceStorage) SelectInterviews(postIDs []int) (interviews []models.Interview, err error) {
 	endpoint := service.ServiceEndpoint{
 		Service:     s,
-		Endpoint:    "/interview",
+		Endpoint:    "/api/interview",
 		Method:      "POST",
 		ContentType: "application/json",
 	}
@@ -73,7 +73,7 @@ func (s *ServiceStorage) SelectInterviews(postIDs []int) (interviews []models.In
 func (s *ServiceStorage) SelectInterviewsResults(postIDs []int, userID int) (interviews []interviewModels.InterviewResult, err error) {
 	endpoint := service.ServiceEndpoint{
 		Service:     s,
-		Endpoint:    "/interview/list",
+		Endpoint:    "/api/interview/list",
 		Method:      "POST",
 		ContentType: "application/json",
 	}
