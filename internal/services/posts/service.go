@@ -135,6 +135,9 @@ func (s *service) checkPhotos(photoIDs []int, userID int) (err error) {
 
 func (s *service) GetList(ctx context.Context, request models.GetPostListRequest) (response []models.PostResult, err error) {
 	response = make([]models.PostResult, 0)
+	if request.UserID == 0 {
+		request.UserID = ctx.Session.Uid
+	}
 	err = s.CheckPostsPermission(ctx, request.UserID, request.GroupID)
 	if err != nil {
 		err = fmt.Errorf("restricted")

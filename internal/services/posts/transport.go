@@ -50,7 +50,7 @@ func (t transport) CreateEncode(response models.Post, ctx *fasthttp.RequestCtx) 
 func (t transport) GetListDecode(ctx *fasthttp.RequestCtx) (request models.GetPostListRequest, err error) {
 	//userID := ctx.Value("UserID").(int)
 	//request.UserID = ctx.Value("UserID").(int)
-	request.UserID = 12
+	//request.UserID = 12
 	request.GroupID = ctx.QueryArgs().GetUintOrZero("groupID")
 	request.Limit = ctx.QueryArgs().GetUintOrZero("limit")
 
