@@ -21,10 +21,6 @@ func NewClient(host string, secret string) Client {
 	return &client{host: host, secret: secret}
 }
 
-type CheckAuthRequest struct {
-	SessionToken string `json:"cookie"`
-}
-
 type httpError struct {
 	Error string `json:"error"`
 }
