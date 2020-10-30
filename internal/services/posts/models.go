@@ -30,7 +30,6 @@ type uploadStorage interface {
 
 type interviewStorage interface {
 	InsertInterviews(interviews []models.Interview, postID int) (err error)
-	SelectInterviews(postIDs []int) (interviews []models.Interview, err error)
 
 	SelectInterviewsResults(postIDs []int, userID int) (interviews []interviewModels.InterviewResult, err error)
 }

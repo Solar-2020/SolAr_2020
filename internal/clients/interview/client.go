@@ -4,8 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	service "github.com/Solar-2020/GoUtils/http"
-	interviewApi "github.com/Solar-2020/Interview-Backend/pkg/api"
 	interviewModels "github.com/Solar-2020/Interview-Backend/pkg/models"
 	"github.com/Solar-2020/SolAr_Backend_2020/internal/models"
 	"net/http"
@@ -13,7 +11,6 @@ import (
 
 type Client interface {
 	InsertInterviews(interviews []models.Interview, postID int) (err error)
-	SelectInterviews(postIDs []int) (interviews []models.Interview, err error)
 	SelectInterviewsResults(postIDs []int, userID int) (interviews []interviewModels.InterviewResult, err error)
 }
 
@@ -40,8 +37,8 @@ func (c *client) InsertInterviews(interviews []models.Interview, postID int) (er
 		return
 	}
 
-	checkAuthRequest := CreateRequest{Interviews: interviews, PostID: postID}
-	body, err := json.Marshal(checkAuthRequest)
+	createRequest := CreateRequest{Interviews: interviews, PostID: postID}
+	body, err := json.Marshal(createRequest)
 	if err != nil {
 		return
 	}
@@ -75,47 +72,54 @@ func (c *client) InsertInterviews(interviews []models.Interview, postID int) (er
 	}
 }
 
-func (c *client) SelectInterviews(postIDs []int) (interviews []models.Interview, err error) {
-	endpoint := service.ServiceEndpoint{
-		Service:     s,
-		Endpoint:    "/api/interview",
-		Method:      "POST",
-		ContentType: "application/json",
-	}
+type GetUniversalRequest struct {
+	PostIDs         []int `json:"postIDs" validate:"required"`
+	UserID          int   `json:"userID" validate:"required"`
+	NotPassedResult bool  `json:"notPassedResult"`
+}
 
-	message := interviewApi.GetRequest{
-		Ids: postIDs,
-	}
-
-	resp := interviewApi.GetResponse{}
-	err = endpoint.Send(message, &resp)
-	if err != nil {
-		return
-	}
-	interviews = FromApiInterviews(resp.Interviews)
-	return
+type GetUniversalResponse struct {
+	Interviews []interviewModels.InterviewResult `json:"interviews"`
 }
 
 func (c *client) SelectInterviewsResults(postIDs []int, userID int) (interviews []interviewModels.InterviewResult, err error) {
-	endpoint := service.ServiceEndpoint{
-		Service:     s,
-		Endpoint:    "/api/interview/list",
-		Method:      "POST",
-		ContentType: "application/json",
+	if len(postIDs) == 0 {
+		return
 	}
 
-	message := interviewApi.GetUniversalRequest{
-		PostIDs:         postIDs,
-		UserID:          userID,
-		NotPassedResult: true,
-	}
-
-	resp := interviewApi.GetUniversalResponse{}
-	err = endpoint.Send(message, &resp)
+	getUniversalRequest := GetUniversalRequest{PostIDs: postIDs, UserID: userID}
+	body, err := json.Marshal(getUniversalRequest)
 	if err != nil {
 		return
 	}
-	interviews = resp.Interviews
-	//interviews = FromApiInterviews(resp.Interviews)
-	return
+
+	req, err := http.NewRequest(http.MethodPost, c.host+"/api/interview/list", bytes.NewReader(body))
+	if err != nil {
+		return
+	}
+
+	req.Header.Set("Authorization", c.secret)
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return
+	}
+
+	defer resp.Body.Close()
+
+	switch resp.StatusCode {
+	case http.StatusOK:
+		var response GetUniversalResponse
+		err = json.NewDecoder(resp.Body).Decode(&response)
+		return response.Interviews, err
+	case http.StatusBadRequest:
+		var httpErr httpError
+		err = json.NewDecoder(resp.Body).Decode(&httpErr)
+		if err != nil {
+			return
+		}
+		return interviews, errors.New(httpErr.Error)
+	default:
+		return interviews, errors.New("Unexpected Server Error")
+	}
 }
