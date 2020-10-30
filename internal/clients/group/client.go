@@ -66,7 +66,7 @@ func (c *client) GetUserRole(userID, groupID int) (roleID int, err error) {
 		if err != nil {
 			return
 		}
-		return roleID, err
+		return roleID, errors.New(httpErr.Error)
 	default:
 		return roleID, errors.New("Unexpected Server Error")
 	}
