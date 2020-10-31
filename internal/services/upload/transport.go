@@ -23,17 +23,18 @@ func NewTransport() Transport {
 }
 
 func (t transport) FileDecode(ctx *fasthttp.RequestCtx) (request models.WriteFile, err error) {
-	body := ctx.FormValue("body")
+	//body := ctx.FormValue("body")
 	file, err := ctx.FormFile("file")
 	if err != nil {
 		return
 	}
 
-	err = json.Unmarshal(body, &request)
-	if err != nil {
-		return
-	}
+	//err = json.Unmarshal(body, &request)
+	//if err != nil {
+	//	return
+	//}
 
+	request.Name = file.Filename
 	request.File = file
 	userID, ok := ctx.UserValue("userID").(int)
 	if ok {
@@ -55,16 +56,17 @@ func (t transport) FileEncode(response models.File, ctx *fasthttp.RequestCtx) (e
 }
 
 func (t transport) PhotoDecode(ctx *fasthttp.RequestCtx) (request models.WritePhoto, err error) {
-	body := ctx.FormValue("body")
+	//body := ctx.FormValue("body")
 	file, err := ctx.FormFile("file")
 	if err != nil {
 		return
 	}
 
-	err = json.Unmarshal(body, &request)
-	if err != nil {
-		return
-	}
+	//err = json.Unmarshal(body, &request)
+	//if err != nil {
+	//	return
+	//}
+	request.Name = file.Filename
 
 	request.File = file
 	userID, ok := ctx.UserValue("userID").(int)
