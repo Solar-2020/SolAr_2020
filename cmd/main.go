@@ -51,8 +51,8 @@ func main() {
 		return
 	}
 
-	postsDB.SetMaxIdleConns(5)
-	postsDB.SetMaxOpenConns(10)
+	uploadDB.SetMaxIdleConns(5)
+	uploadDB.SetMaxOpenConns(10)
 
 	//userDB, err := sql.Open("postgres", cfg.UserDataBaseConnectionString)
 	//if err != nil {
