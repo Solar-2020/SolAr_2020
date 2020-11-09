@@ -10,6 +10,7 @@ import (
 	"github.com/Solar-2020/SolAr_Backend_2020/cmd/handlers"
 	postsHandler "github.com/Solar-2020/SolAr_Backend_2020/cmd/handlers/posts"
 	uploadHandler "github.com/Solar-2020/SolAr_Backend_2020/cmd/handlers/upload"
+	"github.com/Solar-2020/SolAr_Backend_2020/internal/clients/account"
 	"github.com/Solar-2020/SolAr_Backend_2020/internal/clients/auth"
 	"github.com/Solar-2020/SolAr_Backend_2020/internal/clients/group"
 	"github.com/Solar-2020/SolAr_Backend_2020/internal/clients/interview"
@@ -72,10 +73,12 @@ func main() {
 	uploadHandler := uploadHandler.NewHandler(uploadService, uploadTransport, errorWorker)
 
 	//interviewStorage := interviewStorage.NewStorage(postsDB)
+	accountClient := account.NewClient(config.Config.AccountServiceAddress, config.Config.ServerSecret)
+
 	interviewStorage := interview.NewClient(config.Config.InterviewService, config.Config.ServerSecret)
 	paymentStorage := paymentStorage.NewStorage(postsDB)
 	postStorage := postStorage.NewStorage(postsDB)
-	postsService := posts.NewService(postStorage, uploadStorage, interviewStorage, paymentStorage, groupClient)
+	postsService := posts.NewService(postStorage, uploadStorage, interviewStorage, paymentStorage, groupClient, accountClient)
 	postsTransport := posts.NewTransport()
 
 	postsHandler := postsHandler.NewHandler(postsService, postsTransport, errorWorker)

@@ -55,6 +55,7 @@ type Post struct {
 
 type PostResult struct {
 	ID          int                      `json:"id"`
+	Author      User                     `json:"author"`
 	CreateBy    int                      `json:"-"`
 	CreatAt     time.Time                `json:"-"`
 	PublishDate time.Time                `json:"publishDate"`
@@ -107,6 +108,7 @@ type Payment struct {
 }
 
 type AclAction int
+
 const (
 	ActionGetList AclAction = iota
 	ActionCreatePost

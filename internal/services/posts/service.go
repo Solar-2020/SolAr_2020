@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	interviewModels "github.com/Solar-2020/Interview-Backend/pkg/models"
+	"github.com/Solar-2020/SolAr_Backend_2020/internal/clients/account"
 	"github.com/Solar-2020/SolAr_Backend_2020/internal/clients/group"
 	"github.com/Solar-2020/SolAr_Backend_2020/internal/models"
 	"sort"
@@ -20,15 +21,17 @@ type service struct {
 	interviewStorage interviewStorage
 	paymentStorage   paymentStorage
 	groupClient      group.Client
+	accountClient    account.Client
 }
 
-func NewService(postsStorage postStorage, uploadStorage uploadStorage, interviewStorage interviewStorage, paymentStorage paymentStorage, groupClient group.Client) Service {
+func NewService(postsStorage postStorage, uploadStorage uploadStorage, interviewStorage interviewStorage, paymentStorage paymentStorage, groupClient group.Client, accountClient account.Client) Service {
 	return &service{
 		postsStorage:     postsStorage,
 		uploadStorage:    uploadStorage,
 		interviewStorage: interviewStorage,
 		paymentStorage:   paymentStorage,
 		groupClient:      groupClient,
+		accountClient:    accountClient,
 	}
 }
 
@@ -246,6 +249,15 @@ func (s *service) GetList(request models.GetPostListRequest) (response []models.
 
 	sortPost := models.Posts{Posts: response}
 	sort.Sort(&sortPost)
+
+	for i, _ := range sortPost.Posts {
+		var user models.User
+		user, err = s.accountClient.GetUserByID(sortPost.Posts[i].CreateBy)
+		if err != nil {
+			return
+		}
+		sortPost.Posts[i].Author = user
+	}
 
 	return sortPost.Posts, nil
 }
