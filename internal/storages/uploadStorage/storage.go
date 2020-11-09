@@ -157,11 +157,15 @@ func (s *storage) createFileName(name string) (fileName string, err error) {
 }
 
 func (s *storage) extractFormatFile(fileName string) (postfix string, err error) {
-	parts := strings.Split(fileName, ".")
-	if len(parts) != 2 {
-		return postfix, errors.New("Некорректное имя файла")
+	if fileName == "" {
+		err = fmt.Errorf("filename must not be empty")
+		return
 	}
-	postfix = parts[1]
+	parts := strings.Split(fileName, ".")
+	if len(parts) == 0 {
+		return postfix, errors.New("no wanna deal with non-postfix files")
+	}
+	postfix = parts[len(parts)-1]
 	return
 }
 
