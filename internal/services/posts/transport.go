@@ -60,12 +60,12 @@ func (t transport) GetListDecode(ctx *fasthttp.RequestCtx) (request models.GetPo
 	if err != nil {
 		return
 	}
-	request.UserID = 12
-	//userID, ok := ctx.UserValue("userID").(int)
-	//if ok {
-	//	request.UserID = userID
-	//	return
-	//}
+	//request.UserID = 12
+	userID, ok := ctx.UserValue("userID").(int)
+	if ok {
+		request.UserID = userID
+		return
+	}
 	return
 }
 

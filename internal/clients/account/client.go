@@ -1,7 +1,6 @@
 package account
 
 import (
-	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -13,7 +12,6 @@ import (
 type Client interface {
 	GetUserByID(userID int) (user models.User, err error)
 	GetUserByEmail(email string) (user models.User, err error)
-	CreateUser(request models.User) (userID int, err error)
 }
 
 type client struct {
@@ -99,47 +97,4 @@ type CreateUser struct {
 	Name      string `json:"name" validate:"required"`
 	Surname   string `json:"surname"`
 	AvatarURL string `json:"avatarURL"`
-}
-
-func (c *client) CreateUser(request models.User) (userID int, err error) {
-	createUser := CreateUser{
-		ID:        request.ID,
-		Email:     request.Email,
-		Name:      request.Name,
-		Surname:   request.Surname,
-		AvatarURL: request.AvatarURL,
-	}
-	body, err := json.Marshal(createUser)
-	if err != nil {
-		return
-	}
-	req, err := http.NewRequest(http.MethodPost, c.host+"/api/internal/account/user", bytes.NewReader(body))
-	if err != nil {
-		return
-	}
-
-	req.Header.Set("Authorization", c.secret)
-
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return
-	}
-
-	defer resp.Body.Close()
-
-	switch resp.StatusCode {
-	case http.StatusOK:
-		var response CreateUser
-		err = json.NewDecoder(resp.Body).Decode(&response)
-		return response.ID, err
-	case http.StatusBadRequest:
-		var httpErr httpError
-		err = json.NewDecoder(resp.Body).Decode(&httpErr)
-		if err != nil {
-			return
-		}
-		return userID, errors.New(httpErr.Error)
-	default:
-		return userID, errors.New("Unexpected Server Error")
-	}
 }
