@@ -16,7 +16,8 @@ func NewFastHttpRouter(posts postsHandler.Handler, upload uploadHandler.Handler,
 
 	router.Handle("POST", "/api/posts/post", middleware.Log(middleware.ExternalAuth(posts.Create)))
 	//router.Handle("POST", "/api/posts/post", posts.Create)
-	router.Handle("GET", "/api/posts/posts", middleware.Log(middleware.ExternalAuth(posts.GetList)))
+	//router.Handle("GET", "/api/posts/posts", middleware.Log(middleware.ExternalAuth(posts.GetList)))
+	router.Handle("GET", "/api/posts/posts", posts.GetList)
 
 	router.Handle("POST", "/api/upload/photo", middleware.Log(middleware.ExternalAuth(upload.Photo)))
 	router.Handle("POST", "/api/upload/file", middleware.Log(middleware.ExternalAuth(upload.File)))

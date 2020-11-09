@@ -138,7 +138,7 @@ func (s *storage) UpdatePostStatus(postID int, status int) (err error) {
 func (s *storage) SelectPosts(request models.GetPostListRequest) (posts []models.InputPost, err error) {
 	posts = make([]models.InputPost, 0)
 	sqlQuery := `
-	SELECT p.id, p.text, p.group_id, p.publish_date
+	SELECT p.id, p.text, p.group_id, p.publish_date, p.create_by
 	FROM posts.posts AS p
 	WHERE p.create_by = $1
 	  AND p.group_id = $2
@@ -155,7 +155,7 @@ func (s *storage) SelectPosts(request models.GetPostListRequest) (posts []models
 
 	for rows.Next() {
 		var tempPost models.InputPost
-		err = rows.Scan(&tempPost.ID, &tempPost.Text, &tempPost.GroupID, &tempPost.PublishDate)
+		err = rows.Scan(&tempPost.ID, &tempPost.Text, &tempPost.GroupID, &tempPost.PublishDate, &tempPost.CreateBy)
 		if err != nil {
 			return
 		}
