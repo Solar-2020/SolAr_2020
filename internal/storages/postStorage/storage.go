@@ -136,6 +136,7 @@ func (s *storage) UpdatePostStatus(postID int, status int) (err error) {
 }
 
 func (s *storage) SelectPosts(request models.GetPostListRequest) (posts []models.InputPost, err error) {
+	posts = make([]models.InputPost, 0)
 	sqlQuery := `
 	SELECT p.id, p.text, p.group_id, p.publish_date
 	FROM posts.posts AS p
