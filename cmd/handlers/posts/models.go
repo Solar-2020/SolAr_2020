@@ -8,6 +8,7 @@ import (
 type postService interface {
 	Create(request models.InputPost) (response models.Post, err error)
 	GetList(request models.GetPostListRequest) (response []models.PostResult, err error)
+	SetMark(request models.MarkPost) (err error)
 }
 
 type postTransport interface {
@@ -16,6 +17,9 @@ type postTransport interface {
 
 	GetListDecode(ctx *fasthttp.RequestCtx) (request models.GetPostListRequest, err error)
 	GetListEncode(response []models.PostResult, ctx *fasthttp.RequestCtx) (err error)
+
+	SetMarkDecode(ctx *fasthttp.RequestCtx) (request models.MarkPost, err error)
+	SetMarkEncode(ctx *fasthttp.RequestCtx) (err error)
 }
 
 type errorWorker interface {

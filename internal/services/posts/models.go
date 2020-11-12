@@ -18,6 +18,8 @@ type postStorage interface {
 	SelectPayments(postIDs []int) (payments []models.Payment, err error)
 
 	SelectInterviews(postIDs []int) (interviews []models.Interview, err error)
+
+	SetMark(postID int, mark bool, group int) (err error)
 }
 
 type uploadStorage interface {

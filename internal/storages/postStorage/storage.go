@@ -2,6 +2,7 @@ package postStorage
 
 import (
 	"database/sql"
+	"errors"
 	"github.com/Solar-2020/SolAr_Backend_2020/internal/models"
 	"strconv"
 	"strings"
@@ -22,6 +23,8 @@ type Storage interface {
 	SelectPosts(request models.GetPostListRequest) (posts []models.InputPost, err error)
 	SelectPayments(postIDs []int) (payments []models.Payment, err error)
 	SelectInterviews(postIDs []int) (interviews []models.Interview, err error)
+
+	SetMark(postID int, mark bool, group int) (err error)
 }
 
 type storage struct {
@@ -138,7 +141,7 @@ func (s *storage) UpdatePostStatus(postID int, status int) (err error) {
 func (s *storage) SelectPosts(request models.GetPostListRequest) (posts []models.InputPost, err error) {
 	posts = make([]models.InputPost, 0)
 	sqlQuery := `
-	SELECT p.id, p.text, p.group_id, p.publish_date, p.create_by
+	SELECT p.id, p.text, p.group_id, p.publish_date, p.create_by, p.marked
 	FROM posts.posts AS p
 	WHERE p.create_by = $1
 	  AND p.group_id = $2
@@ -155,7 +158,7 @@ func (s *storage) SelectPosts(request models.GetPostListRequest) (posts []models
 
 	for rows.Next() {
 		var tempPost models.InputPost
-		err = rows.Scan(&tempPost.ID, &tempPost.Text, &tempPost.GroupID, &tempPost.PublishDate, &tempPost.CreateBy)
+		err = rows.Scan(&tempPost.ID, &tempPost.Text, &tempPost.GroupID, &tempPost.PublishDate, &tempPost.CreateBy, &tempPost.Marked)
 		if err != nil {
 			return
 		}
@@ -316,6 +319,21 @@ func (s *storage) SelectPhotoIDs(postIDs []int) (matches []models.PostPhotoMatch
 		matches = append(matches, tempMatch)
 	}
 
+	return
+}
+
+func (s *storage) SetMark(postID int, mark bool, group int) (err error) {
+	const sqlQueryTemplate = `
+	UPDATE posts SET marked=$1 WHERE id=$2 and group_id=$3`
+	res, err := s.db.Exec(sqlQueryTemplate, mark, postID, group)
+	if err != nil {
+		err = errors.New("bad values")
+		return
+	}
+
+	if affected, err := res.RowsAffected(); err != nil || affected != 1 {
+		return errors.New("not changed")
+	}
 	return
 }
 
