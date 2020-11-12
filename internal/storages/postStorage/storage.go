@@ -3,6 +3,7 @@ package postStorage
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	"github.com/Solar-2020/SolAr_Backend_2020/internal/models"
 	"strconv"
 	"strings"
@@ -147,10 +148,21 @@ func (s *storage) SelectPosts(request models.GetPostListRequest) (posts []models
 	  AND p.group_id = $2
 	  AND p.status_id = 2
 	  AND p.publish_date <= $3
+	  %s
 	ORDER BY p.publish_date DESC
 	LIMIT $4`
 
-	rows, err := s.db.Query(sqlQuery, request.UserID, request.GroupID, request.StartFrom, request.Limit)
+	markCondition := ""
+	params := []interface{}{
+		request.UserID, request.GroupID, request.StartFrom, request.Limit,
+	}
+	if request.Mark.Defined {
+		markCondition = " AND p.marked = $5"
+		params = append(params, request.Mark.Value)
+	}
+
+	rows, err := s.db.Query(
+		fmt.Sprintf(sqlQuery, markCondition), params...)
 	if err != nil {
 		return
 	}

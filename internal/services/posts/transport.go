@@ -63,6 +63,12 @@ func (t transport) GetListDecode(ctx *fasthttp.RequestCtx) (request models.GetPo
 	if err != nil {
 		return
 	}
+
+
+	if ctx.QueryArgs().Has("mark") {
+		request.Mark.Defined = true
+		request.Mark.Value = ctx.QueryArgs().GetBool("mark")
+	}
 	//request.UserID = 12
 	userID, ok := ctx.UserValue("userID").(int)
 	if ok {

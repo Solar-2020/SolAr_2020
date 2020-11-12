@@ -154,6 +154,7 @@ func (s *service) GetList(request models.GetPostListRequest) (response []models.
 	}
 
 	if len(posts) == 0 {
+		response = make([]models.PostResult, 0)
 		return
 	}
 
@@ -172,6 +173,7 @@ func (s *service) GetList(request models.GetPostListRequest) (response []models.
 			Interviews:  make([]interviewModels.InterviewResult, 0),
 			Payments:    make([]models.Payment, 0),
 			Order:       index,
+			Marked: post.Marked,
 		}
 	}
 

@@ -5,11 +5,16 @@ import (
 	"time"
 )
 
+type OptBool struct {
+	Value bool
+	Defined bool
+}
 type GetPostListRequest struct {
 	UserID    int
 	GroupID   int
 	Limit     int
 	StartFrom time.Time
+	Mark     OptBool
 }
 
 type MainPost struct {
