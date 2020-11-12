@@ -26,28 +26,19 @@ func NewHandler(postService postService, postTransport postTransport, errorWorke
 func (h *handler) Create(ctx *fasthttp.RequestCtx) {
 	post, err := h.postTransport.CreateDecode(ctx)
 	if err != nil {
-		err = h.errorWorker.ServeJSONError(ctx, err)
-		if err != nil {
-			h.errorWorker.ServeFatalError(ctx)
-		}
+		h.handleError(err, ctx)
 		return
 	}
 
 	postReturn, err := h.postService.Create(post)
 	if err != nil {
-		err = h.errorWorker.ServeJSONError(ctx, err)
-		if err != nil {
-			h.errorWorker.ServeFatalError(ctx)
-		}
+		h.handleError(err, ctx)
 		return
 	}
 
 	err = h.postTransport.CreateEncode(postReturn, ctx)
 	if err != nil {
-		err = h.errorWorker.ServeJSONError(ctx, err)
-		if err != nil {
-			h.errorWorker.ServeFatalError(ctx)
-		}
+		h.handleError(err, ctx)
 		return
 	}
 }
@@ -55,28 +46,27 @@ func (h *handler) Create(ctx *fasthttp.RequestCtx) {
 func (h *handler) GetList(ctx *fasthttp.RequestCtx) {
 	getPostListRequest, err := h.postTransport.GetListDecode(ctx)
 	if err != nil {
-		err = h.errorWorker.ServeJSONError(ctx, err)
-		if err != nil {
-			h.errorWorker.ServeFatalError(ctx)
-		}
+		h.handleError(err, ctx)
 		return
 	}
 
 	postReturn, err := h.postService.GetList(getPostListRequest)
 	if err != nil {
-		err = h.errorWorker.ServeJSONError(ctx, err)
-		if err != nil {
-			h.errorWorker.ServeFatalError(ctx)
-		}
+		h.handleError(err, ctx)
 		return
 	}
 
 	err = h.postTransport.GetListEncode(postReturn, ctx)
 	if err != nil {
-		err = h.errorWorker.ServeJSONError(ctx, err)
-		if err != nil {
-			h.errorWorker.ServeFatalError(ctx)
-		}
+		h.handleError(err, ctx)
 		return
 	}
+}
+
+func (h *handler) handleError(err error, ctx *fasthttp.RequestCtx) {
+	err = h.errorWorker.ServeJSONError(ctx, err)
+	if err != nil {
+		h.errorWorker.ServeFatalError(ctx)
+	}
+	return
 }

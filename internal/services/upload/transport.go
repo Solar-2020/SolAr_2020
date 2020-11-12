@@ -2,7 +2,8 @@ package upload
 
 import (
 	"encoding/json"
-	"github.com/BarniBl/SolAr_2020/internal/models"
+	"errors"
+	"github.com/Solar-2020/SolAr_Backend_2020/internal/models"
 	"github.com/valyala/fasthttp"
 )
 
@@ -22,20 +23,25 @@ func NewTransport() Transport {
 }
 
 func (t transport) FileDecode(ctx *fasthttp.RequestCtx) (request models.WriteFile, err error) {
-	request.UserID = 1
-
-	body := ctx.FormValue("body")
-
-	file := ctx.FormValue("file")
-
-	err = json.Unmarshal(body, &request)
+	//body := ctx.FormValue("body")
+	file, err := ctx.FormFile("file")
 	if err != nil {
 		return
 	}
 
-	request.Body = file
+	//err = json.Unmarshal(body, &request)
+	//if err != nil {
+	//	return
+	//}
 
-	return
+	request.Name = file.Filename
+	request.File = file
+	userID, ok := ctx.UserValue("userID").(int)
+	if ok {
+		request.UserID = userID
+		return
+	}
+	return request, errors.New("userID not found")
 }
 
 func (t transport) FileEncode(response models.File, ctx *fasthttp.RequestCtx) (err error) {
@@ -50,20 +56,25 @@ func (t transport) FileEncode(response models.File, ctx *fasthttp.RequestCtx) (e
 }
 
 func (t transport) PhotoDecode(ctx *fasthttp.RequestCtx) (request models.WritePhoto, err error) {
-	request.UserID = 1
-
-	body := ctx.FormValue("body")
-
-	file := ctx.FormValue("file")
-
-	err = json.Unmarshal(body, &request)
+	//body := ctx.FormValue("body")
+	file, err := ctx.FormFile("file")
 	if err != nil {
 		return
 	}
 
-	request.Body = file
+	//err = json.Unmarshal(body, &request)
+	//if err != nil {
+	//	return
+	//}
+	request.Name = file.Filename
 
-	return
+	request.File = file
+	userID, ok := ctx.UserValue("userID").(int)
+	if ok {
+		request.UserID = userID
+		return
+	}
+	return request, errors.New("userID not found")
 }
 
 func (t transport) PhotoEncode(response models.Photo, ctx *fasthttp.RequestCtx) (err error) {

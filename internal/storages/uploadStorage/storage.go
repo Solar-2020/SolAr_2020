@@ -5,7 +5,8 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"github.com/BarniBl/SolAr_2020/internal/models"
+	"github.com/Solar-2020/SolAr_Backend_2020/internal/models"
+	"io"
 	"os"
 	"strconv"
 	"strings"
@@ -22,8 +23,8 @@ type Storage interface {
 	SelectCountFiles(fileIDs []int, userID int) (countFiles int, err error)
 	SelectCountPhotos(photoIDs []int, userID int) (countPhotos int, err error)
 
-	SelectFiles(fileIDs []int) (files []models.File, err error)
-	SelectPhotos(photoIDs []int) (photos []models.Photo, err error)
+	SelectFiles(fileIDs []int) (files map[int]models.File, err error)
+	SelectPhotos(photoIDs []int) (photos map[int]models.Photo, err error)
 }
 
 type storage struct {
@@ -55,18 +56,28 @@ func (s *storage) SaveFile(file models.WriteFile) (fileView models.File, err err
 	fileView.URL = s.filePath + "/" + filePath + "/" + fileName
 
 	if err = os.MkdirAll(s.filePath+"/"+filePath, 0777); err != nil {
+		fmt.Println("Error on MkdirAll: ", err)
 		return
 	}
 
 	writeFile, err := os.Create(fileView.URL)
 	if err != nil {
+		fmt.Println("Cannot create file: ", err)
 		return
 	}
 	defer writeFile.Close()
 
-	_, err = writeFile.Write(file.Body)
-	return
+	readFile, err := file.File.Open()
+	if err != nil {
+		fmt.Println("Cannot open file: ", err)
+		return
+	}
+	defer readFile.Close()
 
+	n, err := io.Copy(writeFile, readFile)
+	fmt.Println("File copied: err=", err, ", n= ", n)
+
+	return
 }
 
 func (s *storage) SavePhoto(photo models.WritePhoto) (photoView models.Photo, err error) {
@@ -92,7 +103,13 @@ func (s *storage) SavePhoto(photo models.WritePhoto) (photoView models.Photo, er
 	}
 	defer writeFile.Close()
 
-	_, err = writeFile.Write(photo.Body)
+	readFile, err := photo.File.Open()
+	if err != nil {
+		return
+	}
+	defer readFile.Close()
+
+	_, err = io.Copy(writeFile, readFile)
 
 	return
 }
@@ -140,15 +157,23 @@ func (s *storage) createFileName(name string) (fileName string, err error) {
 }
 
 func (s *storage) extractFormatFile(fileName string) (postfix string, err error) {
-	parts := strings.Split(fileName, ".")
-	if len(parts) != 2 {
-		return postfix, errors.New("Некорректное имя файла")
+	if fileName == "" {
+		err = fmt.Errorf("filename must not be empty")
+		return
 	}
-	postfix = parts[1]
+	parts := strings.Split(fileName, ".")
+	if len(parts) == 0 {
+		return postfix, errors.New("no wanna deal with non-postfix files")
+	}
+	postfix = parts[len(parts)-1]
 	return
 }
 
 func (s *storage) SelectCountFiles(fileIDs []int, userID int) (countFiles int, err error) {
+	if len(fileIDs) == 0 {
+		return 0, err
+	}
+
 	const sqlQueryTemplate = `
 	SELECT count(*)
 	FROM upload.files AS f
@@ -172,6 +197,10 @@ func (s *storage) SelectCountFiles(fileIDs []int, userID int) (countFiles int, e
 }
 
 func (s *storage) SelectCountPhotos(photoIDs []int, userID int) (countPhotos int, err error) {
+	if len(photoIDs) == 0 {
+		return 0, err
+	}
+
 	const sqlQueryTemplate = `
 	SELECT count(*)
 	FROM photos AS p
@@ -205,7 +234,11 @@ func createIN(count int) (queryIN string) {
 	return
 }
 
-func (s *storage) SelectFiles(fileIDs []int) (files []models.File, err error) {
+func (s *storage) SelectFiles(fileIDs []int) (files map[int]models.File, err error) {
+	files = make(map[int]models.File)
+	if len(fileIDs) == 0 {
+		return
+	}
 	const sqlQueryTemplate = `
 	SELECT f.id, f.title, f.url
 	FROM files AS f
@@ -235,13 +268,17 @@ func (s *storage) SelectFiles(fileIDs []int) (files []models.File, err error) {
 		if err != nil {
 			return
 		}
-		files = append(files, tempFile)
+		files[tempFile.ID] = tempFile
 	}
 
 	return
 }
 
-func (s *storage) SelectPhotos(photoIDs []int) (photos []models.Photo, err error) {
+func (s *storage) SelectPhotos(photoIDs []int) (photos map[int]models.Photo, err error) {
+	photos = make(map[int]models.Photo)
+	if len(photoIDs) == 0 {
+		return
+	}
 	const sqlQueryTemplate = `
 	SELECT p.id, p.title, p.url
 	FROM photos AS p
@@ -271,7 +308,7 @@ func (s *storage) SelectPhotos(photoIDs []int) (photos []models.Photo, err error
 		if err != nil {
 			return
 		}
-		photos = append(photos, tempPhoto)
+		photos[tempPhoto.ID] = tempPhoto
 	}
 
 	return

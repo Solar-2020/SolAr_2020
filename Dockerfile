@@ -31,6 +31,9 @@ RUN cp /build/main .
 # Build a small image
 FROM alpine
 
+# for health check
+RUN apk --no-cache add curl
+
 COPY --from=builder /dist/main /
 
 ENV POSTS_DB_CONNECTION_STRING=postgres://postgres:postgres@185.255.134.117:5432/posts?search_path=posts&sslmode=disable
@@ -38,5 +41,9 @@ ENV UPLOAD_DB_CONNECTION_STRING=postgres://postgres:postgres@185.255.134.117:543
 
 EXPOSE 8099
 
-# Command to run
-ENTRYPOINT ["/main"]
+ADD ./scripts/run.sh /run.sh
+
+ENV GIT_BRANCH="main"
+ENV SERVICE_NAME="post"
+
+CMD /run.sh /main /var/log/solar_$SERVICE_NAME.$GIT_BRANCH.log
