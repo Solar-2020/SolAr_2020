@@ -7,6 +7,7 @@ import (
 type Handler interface {
 	Create(ctx *fasthttp.RequestCtx)
 	GetList(ctx *fasthttp.RequestCtx)
+	Mark(ctx *fasthttp.RequestCtx)
 }
 
 type handler struct {
@@ -57,6 +58,26 @@ func (h *handler) GetList(ctx *fasthttp.RequestCtx) {
 	}
 
 	err = h.postTransport.GetListEncode(postReturn, ctx)
+	if err != nil {
+		h.handleError(err, ctx)
+		return
+	}
+}
+
+func (h *handler) Mark(ctx *fasthttp.RequestCtx) {
+	markRequest, err := h.postTransport.SetMarkDecode(ctx)
+	if err != nil {
+		h.handleError(err, ctx)
+		return
+	}
+
+	err = h.postService.SetMark(markRequest)
+	if err != nil {
+		h.handleError(err, ctx)
+		return
+	}
+
+	err = h.postTransport.SetMarkEncode(ctx)
 	if err != nil {
 		h.handleError(err, ctx)
 		return

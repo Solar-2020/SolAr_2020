@@ -5,11 +5,16 @@ import (
 	"time"
 )
 
+type OptBool struct {
+	Value bool
+	Defined bool
+}
 type GetPostListRequest struct {
 	UserID    int
 	GroupID   int
 	Limit     int
 	StartFrom time.Time
+	Mark     OptBool
 }
 
 type MainPost struct {
@@ -36,6 +41,7 @@ type InputPost struct {
 	Files       []int       `json:"files"`
 	Interviews  []Interview `json:"interviews"`
 	Payments    []Payment   `json:"payments"`
+	Marked		bool		`json:"marked"`
 }
 
 type Post struct {
@@ -51,6 +57,7 @@ type Post struct {
 	Interviews  []Interview `json:"interviews"`
 	Payments    []Payment   `json:"payments"`
 	Order       int         `json:"-"`
+	Marked		bool		`json:"marked"`
 }
 
 type PostResult struct {
@@ -67,6 +74,7 @@ type PostResult struct {
 	Interviews  []models.InterviewResult `json:"interviews"`
 	Payments    []Payment                `json:"payments"`
 	Order       int                      `json:"-"`
+	Marked		bool					 `json:"marked"`
 }
 
 type Posts struct {
@@ -83,6 +91,13 @@ func (p *Posts) Swap(i, j int) {
 
 func (p *Posts) Less(i, j int) bool {
 	return p.Posts[i].Order < p.Posts[j].Order
+}
+
+type MarkPost struct {
+	UserID int
+	PostID int
+	GroupID int
+	Mark bool
 }
 
 type Interview struct {

@@ -13,6 +13,7 @@ import (
 type Service interface {
 	Create(request models.InputPost) (response models.Post, err error)
 	GetList(request models.GetPostListRequest) (response []models.PostResult, err error)
+	SetMark(request models.MarkPost) (err error)
 }
 
 type service struct {
@@ -153,6 +154,7 @@ func (s *service) GetList(request models.GetPostListRequest) (response []models.
 	}
 
 	if len(posts) == 0 {
+		response = make([]models.PostResult, 0)
 		return
 	}
 
@@ -171,6 +173,7 @@ func (s *service) GetList(request models.GetPostListRequest) (response []models.
 			Interviews:  make([]interviewModels.InterviewResult, 0),
 			Payments:    make([]models.Payment, 0),
 			Order:       index,
+			Marked: post.Marked,
 		}
 	}
 
@@ -260,4 +263,17 @@ func (s *service) GetList(request models.GetPostListRequest) (response []models.
 	}
 
 	return sortPost.Posts, nil
+}
+
+func (s *service) SetMark(request models.MarkPost) (err error) {
+	roleID, err := s.groupClient.GetUserRole(request.UserID, request.GroupID)
+	if err != nil || roleID != 1 {
+		err = fmt.Errorf("restricted")
+		return
+	}
+	err = s.postsStorage.SetMark(request.PostID, request.Mark, request.GroupID)
+	if err != nil {
+		err = errors.New("cannot set mark: " + err.Error())
+	}
+	return
 }
