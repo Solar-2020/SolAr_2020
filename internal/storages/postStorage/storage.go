@@ -144,20 +144,19 @@ func (s *storage) SelectPosts(request models.GetPostListRequest) (posts []models
 	sqlQuery := `
 	SELECT p.id, p.text, p.group_id, p.publish_date, p.create_by, p.marked
 	FROM posts.posts AS p
-	WHERE p.create_by = $1
-	  AND p.group_id = $2
+	WHERE p.group_id = $1
 	  AND p.status_id = 2
-	  AND p.publish_date <= $3
+	  AND p.publish_date <= $2
 	  %s
 	ORDER BY p.publish_date DESC
-	LIMIT $4`
+	LIMIT $3`
 
 	markCondition := ""
 	params := []interface{}{
-		request.UserID, request.GroupID, request.StartFrom, request.Limit,
+		request.GroupID, request.StartFrom, request.Limit,
 	}
 	if request.Mark.Defined {
-		markCondition = " AND p.marked = $5"
+		markCondition = " AND p.marked = $4"
 		params = append(params, request.Mark.Value)
 	}
 
