@@ -15,8 +15,6 @@ type postStorage interface {
 
 	SelectPosts(request models.GetPostListRequest) (posts []models.InputPost, err error)
 
-	SelectPayments(postIDs []int) (payments []models.Payment, err error)
-
 	SelectInterviews(postIDs []int) (interviews []models.Interview, err error)
 
 	SetMark(postID int, mark bool, group int) (err error)
@@ -36,7 +34,7 @@ type interviewStorage interface {
 	SelectInterviewsResults(postIDs []int, userID int) (interviews []interviewModels.InterviewResult, err error)
 }
 
-type paymentStorage interface {
-	InsertPayments(payments []models.Payment, postID int) (err error)
-	SelectPayments(postIDs []int) (payments []models.Payment, err error)
+type paymentClient interface {
+	Create(createRequest models.CreateRequest) (createdPayments []models.Payment, err error)
+	GetByPostIDs(postIDs []int) (payments []models.Payment, err error)
 }

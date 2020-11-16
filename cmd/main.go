@@ -14,9 +14,9 @@ import (
 	"github.com/Solar-2020/SolAr_Backend_2020/internal/clients/auth"
 	"github.com/Solar-2020/SolAr_Backend_2020/internal/clients/group"
 	"github.com/Solar-2020/SolAr_Backend_2020/internal/clients/interview"
+	"github.com/Solar-2020/SolAr_Backend_2020/internal/clients/payment"
 	"github.com/Solar-2020/SolAr_Backend_2020/internal/services/posts"
 	"github.com/Solar-2020/SolAr_Backend_2020/internal/services/upload"
-	"github.com/Solar-2020/SolAr_Backend_2020/internal/storages/paymentStorage"
 	"github.com/Solar-2020/SolAr_Backend_2020/internal/storages/postStorage"
 	"github.com/Solar-2020/SolAr_Backend_2020/internal/storages/uploadStorage"
 	"github.com/kelseyhightower/envconfig"
@@ -76,9 +76,9 @@ func main() {
 	accountClient := account.NewClient(config.Config.AccountServiceAddress, config.Config.ServerSecret)
 
 	interviewStorage := interview.NewClient(config.Config.InterviewService, config.Config.ServerSecret)
-	paymentStorage := paymentStorage.NewStorage(postsDB)
+	paymentClient := payment.NewClient(config.Config.PaymentServiceAddress, config.Config.ServerSecret)
 	postStorage := postStorage.NewStorage(postsDB)
-	postsService := posts.NewService(postStorage, uploadStorage, interviewStorage, paymentStorage, groupClient, accountClient)
+	postsService := posts.NewService(postStorage, uploadStorage, interviewStorage, groupClient, accountClient,paymentClient)
 	postsTransport := posts.NewTransport()
 
 	postsHandler := postsHandler.NewHandler(postsService, postsTransport, errorWorker)

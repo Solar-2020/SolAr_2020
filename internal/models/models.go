@@ -2,11 +2,12 @@ package models
 
 import (
 	"github.com/Solar-2020/Interview-Backend/pkg/models"
+	"github.com/shopspring/decimal"
 	"time"
 )
 
 type OptBool struct {
-	Value bool
+	Value   bool
 	Defined bool
 }
 type GetPostListRequest struct {
@@ -14,7 +15,7 @@ type GetPostListRequest struct {
 	GroupID   int
 	Limit     int
 	StartFrom time.Time
-	Mark     OptBool
+	Mark      OptBool
 }
 
 type MainPost struct {
@@ -30,35 +31,52 @@ type MainPost struct {
 }
 
 type InputPost struct {
-	ID          int         `json:"id"`
-	CreateBy    int         `json:"createBy"`
-	CreatAt     time.Time   `json:"-"`
-	PublishDate time.Time   `json:"publishDate"`
-	GroupID     int         `json:"groupID"`
-	Text        string      `json:"text"`
-	Status      string      `json:"Status"`
-	Photos      []int       `json:"photos"`
-	Files       []int       `json:"files"`
-	Interviews  []Interview `json:"interviews"`
-	Payments    []Payment   `json:"payments"`
-	Marked		bool		`json:"marked"`
+	ID          int             `json:"id"`
+	CreateBy    int             `json:"createBy"`
+	CreatAt     time.Time       `json:"-"`
+	PublishDate time.Time       `json:"publishDate"`
+	GroupID     int             `json:"groupID"`
+	Text        string          `json:"text"`
+	Status      string          `json:"Status"`
+	Photos      []int           `json:"photos"`
+	Files       []int           `json:"files"`
+	Interviews  []Interview     `json:"interviews"`
+	Payments    []Payment `json:"payments"`
+	Marked      bool            `json:"marked"`
 }
 
 type Post struct {
-	ID          int         `json:"id"`
-	CreateBy    int         `json:"-"`
-	CreatAt     time.Time   `json:"-"`
-	PublishDate time.Time   `json:"publishDate"`
-	GroupID     int         `json:"groupID"`
-	Text        string      `json:"text"`
-	Status      string      `json:"Status"`
-	Photos      []Photo     `json:"photos"`
-	Files       []File      `json:"files"`
-	Interviews  []Interview `json:"interviews"`
-	Payments    []Payment   `json:"payments"`
-	Order       int         `json:"-"`
-	Marked		bool		`json:"marked"`
+	ID          int             `json:"id"`
+	CreateBy    int             `json:"-"`
+	CreatAt     time.Time       `json:"-"`
+	PublishDate time.Time       `json:"publishDate"`
+	GroupID     int             `json:"groupID"`
+	Text        string          `json:"text"`
+	Status      string          `json:"Status"`
+	Photos      []Photo         `json:"photos"`
+	Files       []File          `json:"files"`
+	Interviews  []Interview     `json:"interviews"`
+	Payments    []Payment `json:"payments"`
+	Order       int             `json:"-"`
+	Marked      bool            `json:"marked"`
 }
+
+type CreateRequest struct {
+	CreateBy int       `json:"createBy"`
+	GroupID  int       `json:"groupID"`
+	PostID   int       `json:"postID"`
+	Payments []Payment `json:"payments"`
+}
+
+type Payment struct {
+	ID             int             `json:"id"`
+	GroupID        int             `json:"groupID"`
+	PostID         int             `json:"postID"`
+	CreateBy       int             `json:"createBy"`
+	TotalCost      decimal.Decimal `json:"totalCost"`
+	PaymentAccount string          `json:"paymentAccount"`
+}
+
 
 type PostResult struct {
 	ID          int                      `json:"id"`
@@ -74,7 +92,7 @@ type PostResult struct {
 	Interviews  []models.InterviewResult `json:"interviews"`
 	Payments    []Payment                `json:"payments"`
 	Order       int                      `json:"-"`
-	Marked		bool					 `json:"marked"`
+	Marked      bool                     `json:"marked"`
 }
 
 type Posts struct {
@@ -94,10 +112,10 @@ func (p *Posts) Less(i, j int) bool {
 }
 
 type MarkPost struct {
-	UserID int
-	PostID int
+	UserID  int
+	PostID  int
 	GroupID int
-	Mark bool
+	Mark    bool
 }
 
 type Interview struct {
@@ -112,14 +130,6 @@ type Answer struct {
 	ID          int    `json:"id"`
 	Text        string `json:"text"`
 	InterviewID int    `json:"interviewID"`
-}
-
-type Payment struct {
-	ID        int    `json:"id"`
-	Cost      int    `json:"cost"`
-	Currency  int    `json:"currency"`
-	PostID    int    `json:"postID"`
-	Requisite string `json:"requisite"`
 }
 
 type AclAction int

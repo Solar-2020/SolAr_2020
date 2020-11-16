@@ -1,12 +1,12 @@
 package posts
 
 import (
-	"errors"
 	"fmt"
 	interviewModels "github.com/Solar-2020/Interview-Backend/pkg/models"
 	"github.com/Solar-2020/SolAr_Backend_2020/internal/clients/account"
 	"github.com/Solar-2020/SolAr_Backend_2020/internal/clients/group"
 	"github.com/Solar-2020/SolAr_Backend_2020/internal/models"
+	"github.com/pkg/errors"
 	"sort"
 )
 
@@ -20,19 +20,19 @@ type service struct {
 	postsStorage     postStorage
 	uploadStorage    uploadStorage
 	interviewStorage interviewStorage
-	paymentStorage   paymentStorage
+	paymentClient    paymentClient
 	groupClient      group.Client
 	accountClient    account.Client
 }
 
-func NewService(postsStorage postStorage, uploadStorage uploadStorage, interviewStorage interviewStorage, paymentStorage paymentStorage, groupClient group.Client, accountClient account.Client) Service {
+func NewService(postsStorage postStorage, uploadStorage uploadStorage, interviewStorage interviewStorage, groupClient group.Client, accountClient account.Client, paymentClient paymentClient) Service {
 	return &service{
 		postsStorage:     postsStorage,
 		uploadStorage:    uploadStorage,
 		interviewStorage: interviewStorage,
-		paymentStorage:   paymentStorage,
 		groupClient:      groupClient,
 		accountClient:    accountClient,
+		paymentClient:    paymentClient,
 	}
 }
 
@@ -43,16 +43,11 @@ func (s *service) Create(request models.InputPost) (response models.Post, err er
 
 	roleID, err := s.groupClient.GetUserRole(request.CreateBy, request.GroupID)
 	if err != nil {
-		err = fmt.Errorf("restricted")
-		return
+		return response, errors.Wrap(err, "restricted")
 	}
 
 	if roleID > 2 {
 		return response, errors.New("permission denied")
-	}
-
-	if err = s.checkGroup(request.GroupID, request.CreateBy); err != nil {
-		return
 	}
 
 	if err = s.checkFiles(request.Files, request.CreateBy); err != nil {
@@ -73,7 +68,14 @@ func (s *service) Create(request models.InputPost) (response models.Post, err er
 		return
 	}
 
-	err = s.paymentStorage.InsertPayments(request.Payments, response.ID)
+	createRequest := models.CreateRequest{
+		CreateBy: request.CreateBy,
+		GroupID:  request.GroupID,
+		PostID:   response.ID,
+		Payments: request.Payments,
+	}
+
+	_, err = s.paymentClient.Create(createRequest)
 	if err != nil {
 		return
 	}
@@ -104,10 +106,6 @@ func (s *service) validateCreate(post models.InputPost) (err error) {
 		return errors.New("В посте не может быть больше 10 опросов")
 	}
 
-	return
-}
-
-func (s *service) checkGroup(groupID, userID int) (err error) {
 	return
 }
 
@@ -173,7 +171,7 @@ func (s *service) GetList(request models.GetPostListRequest) (response []models.
 			Interviews:  make([]interviewModels.InterviewResult, 0),
 			Payments:    make([]models.Payment, 0),
 			Order:       index,
-			Marked: post.Marked,
+			Marked:      post.Marked,
 		}
 	}
 
@@ -187,7 +185,7 @@ func (s *service) GetList(request models.GetPostListRequest) (response []models.
 		return
 	}
 
-	payments, err := s.paymentStorage.SelectPayments(postIDs)
+	payments, err := s.paymentClient.GetByPostIDs(postIDs)
 	if err != nil {
 		return
 	}
