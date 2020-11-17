@@ -5,6 +5,18 @@ import (
 	"github.com/Solar-2020/SolAr_Backend_2020/internal/models"
 )
 
+const (
+	GetPostActionID    = 4
+	CreatePostActionID = 5
+	EditPostActionID   = 6
+	DeletePostActionID = 7
+	MarkPostActionID   = 8
+
+	PostStatusCreating = 1
+	PostStatusCreated  = 2
+	PostStatusRemoved  = 3
+)
+
 type postStorage interface {
 	InsertPost(inputPost models.InputPost) (postID int, err error)
 	UpdatePostStatus(postID int, groupID int, status int) (err error)
@@ -17,11 +29,6 @@ type postStorage interface {
 
 	SelectInterviews(postIDs []int) (interviews []models.Interview, err error)
 }
-const (
-	PostStatusCreating int = iota + 1
-	PostStatusCreated
-	PostStatusRemoved
-)
 
 type uploadStorage interface {
 	SelectCountFiles(fileIDs []int, userID int) (countFiles int, err error)
@@ -40,4 +47,8 @@ type interviewStorage interface {
 type paymentClient interface {
 	Create(createRequest models.CreateRequest) (createdPayments []models.Payment, err error)
 	GetByPostIDs(postIDs []int) (payments []models.Payment, err error)
+}
+
+type groupClient interface {
+	CheckPermission(userID, groupId, actionID int) (err error)
 }

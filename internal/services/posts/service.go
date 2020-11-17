@@ -1,10 +1,8 @@
 package posts
 
 import (
-	"fmt"
 	interviewModels "github.com/Solar-2020/Interview-Backend/pkg/models"
 	"github.com/Solar-2020/SolAr_Backend_2020/internal/clients/account"
-	"github.com/Solar-2020/SolAr_Backend_2020/internal/clients/group"
 	"github.com/Solar-2020/SolAr_Backend_2020/internal/models"
 	"github.com/pkg/errors"
 	"sort"
@@ -22,11 +20,11 @@ type service struct {
 	uploadStorage    uploadStorage
 	interviewStorage interviewStorage
 	paymentClient    paymentClient
-	groupClient      group.Client
+	groupClient      groupClient
 	accountClient    account.Client
 }
 
-func NewService(postsStorage postStorage, uploadStorage uploadStorage, interviewStorage interviewStorage, groupClient group.Client, accountClient account.Client, paymentClient paymentClient) Service {
+func NewService(postsStorage postStorage, uploadStorage uploadStorage, interviewStorage interviewStorage, groupClient groupClient, accountClient account.Client, paymentClient paymentClient) Service {
 	return &service{
 		postsStorage:     postsStorage,
 		uploadStorage:    uploadStorage,
@@ -42,13 +40,9 @@ func (s *service) Create(request models.InputPost) (response models.Post, err er
 		return
 	}
 
-	roleID, err := s.groupClient.GetUserRole(request.CreateBy, request.GroupID)
+	err = s.groupClient.CheckPermission(request.CreateBy, request.GroupID, CreatePostActionID)
 	if err != nil {
-		return response, errors.Wrap(err, "restricted")
-	}
-
-	if roleID > 2 {
-		return response, errors.New("permission denied")
+		return response, err
 	}
 
 	if err = s.checkFiles(request.Files, request.CreateBy); err != nil {
@@ -137,14 +131,9 @@ func (s *service) checkPhotos(photoIDs []int, userID int) (err error) {
 }
 
 func (s *service) GetList(request models.GetPostListRequest) (response []models.PostResult, err error) {
-	roleID, err := s.groupClient.GetUserRole(request.UserID, request.GroupID)
+	err = s.groupClient.CheckPermission(request.UserID, request.GroupID, GetPostActionID)
 	if err != nil {
-		err = fmt.Errorf("restricted")
-		return
-	}
-
-	if roleID > 3 {
-		return response, errors.New("permission denied")
+		return response, err
 	}
 
 	posts, err := s.postsStorage.SelectPosts(request)
@@ -265,11 +254,11 @@ func (s *service) GetList(request models.GetPostListRequest) (response []models.
 }
 
 func (s *service) SetMark(request models.MarkPost) (err error) {
-	roleID, err := s.groupClient.GetUserRole(request.UserID, request.GroupID)
-	if err != nil || roleID != 1 {
-		err = fmt.Errorf("restricted")
-		return
+	err = s.groupClient.CheckPermission(request.UserID, request.GroupID, MarkPostActionID)
+	if err != nil {
+		return err
 	}
+
 	err = s.postsStorage.SetMark(request.PostID, request.Mark, request.GroupID)
 	if err != nil {
 		err = errors.New("cannot set mark: " + err.Error())
@@ -278,11 +267,11 @@ func (s *service) SetMark(request models.MarkPost) (err error) {
 }
 
 func (s *service) Delete(request models.DeletePostRequest) (err error) {
-	roleID, err := s.groupClient.GetUserRole(request.UserID, request.GroupID)
-	if err != nil || roleID != 1 {
-		err = fmt.Errorf("restricted")
-		return
+	err = s.groupClient.CheckPermission(request.UserID, request.GroupID, DeletePostActionID)
+	if err != nil {
+		return err
 	}
+
 	err = s.postsStorage.UpdatePostStatus(request.PostID, request.GroupID, PostStatusRemoved)
 	if err != nil {
 		err = errors.New("cannot remove post: " + err.Error())

@@ -3,13 +3,14 @@ package group
 import (
 	"encoding/json"
 	"errors"
+	"github.com/valyala/fasthttp"
 	"net/http"
 	"strconv"
-	"strings"
 )
 
 type Client interface {
 	GetUserRole(userID, groupID int) (roleID int, err error)
+	CheckPermission(userID, groupId, actionID int) (err error)
 }
 
 type client struct {
@@ -68,9 +69,30 @@ func (c *client) GetUserRole(userID, groupID int) (roleID int, err error) {
 	}
 }
 
-func (c *client) CompareSecret(inputSecret string) (err error) {
-	if !strings.EqualFold(inputSecret, c.secret) {
-		return errors.New("Invalid server secret")
+
+
+func (c *client) CheckPermission(userID, groupId, actionID int) (err error) {
+	req := fasthttp.AcquireRequest()
+	resp := fasthttp.AcquireResponse()
+	defer fasthttp.ReleaseRequest(req)
+	defer fasthttp.ReleaseResponse(resp)
+
+	req.URI().SetScheme("http")
+	req.URI().SetHost(c.host)
+	req.URI().SetPath("api/internal/group/check-permission")
+
+	req.Header.Set("Authorization", c.secret)
+	req.Header.SetMethod(fasthttp.MethodPost)
+
+	body, err := json.Marshal(createRequest)
+	if err != nil {
+		return
 	}
-	return
+
+	req.SetBody(body)
+
+	err = fasthttp.Do(req, resp)
+	if err != nil {
+		return
+	}
 }

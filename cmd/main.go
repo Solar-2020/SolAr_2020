@@ -6,13 +6,13 @@ import (
 	authapi "github.com/Solar-2020/Authorization-Backend/pkg/api"
 	"github.com/Solar-2020/GoUtils/context/session"
 	"github.com/Solar-2020/GoUtils/http/errorWorker"
+	groupClient "github.com/Solar-2020/Group-Backend/pkg/client"
 	"github.com/Solar-2020/SolAr_Backend_2020/cmd/config"
 	"github.com/Solar-2020/SolAr_Backend_2020/cmd/handlers"
 	postsHandler "github.com/Solar-2020/SolAr_Backend_2020/cmd/handlers/posts"
 	uploadHandler "github.com/Solar-2020/SolAr_Backend_2020/cmd/handlers/upload"
 	"github.com/Solar-2020/SolAr_Backend_2020/internal/clients/account"
 	"github.com/Solar-2020/SolAr_Backend_2020/internal/clients/auth"
-	"github.com/Solar-2020/SolAr_Backend_2020/internal/clients/group"
 	"github.com/Solar-2020/SolAr_Backend_2020/internal/clients/interview"
 	"github.com/Solar-2020/SolAr_Backend_2020/internal/clients/payment"
 	"github.com/Solar-2020/SolAr_Backend_2020/internal/services/posts"
@@ -63,7 +63,8 @@ func main() {
 
 	//userDB.SetMaxIdleConns(5)
 	//userDB.SetMaxOpenConns(10)
-	groupClient := group.NewClient(config.Config.GroupServiceAddress, config.Config.ServerSecret)
+	group := groupClient.NewClient(config.Config.GroupServiceHost, config.Config.ServerSecret)
+	//groupClient := group.NewClient(config.Config.GroupServiceAddress, config.Config.ServerSecret)
 
 	errorWorker := errorWorker.NewErrorWorker()
 
@@ -78,7 +79,7 @@ func main() {
 	interviewStorage := interview.NewClient(config.Config.InterviewService, config.Config.ServerSecret)
 	paymentClient := payment.NewClient(config.Config.PaymentServiceAddress, config.Config.ServerSecret)
 	postStorage := postStorage.NewStorage(postsDB)
-	postsService := posts.NewService(postStorage, uploadStorage, interviewStorage, groupClient, accountClient,paymentClient)
+	postsService := posts.NewService(postStorage, uploadStorage, interviewStorage, group, accountClient, paymentClient)
 	postsTransport := posts.NewTransport()
 
 	postsHandler := postsHandler.NewHandler(postsService, postsTransport, errorWorker)
