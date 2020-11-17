@@ -1,6 +1,7 @@
 package uploadHandler
 
 import (
+	"github.com/Solar-2020/SolAr_Backend_2020/internal/metrics"
 	"github.com/valyala/fasthttp"
 )
 
@@ -64,8 +65,11 @@ func (h *handler) Photo(ctx *fasthttp.RequestCtx) {
 }
 
 func (h *handler) handleError(err error, ctx *fasthttp.RequestCtx) {
+	path := string(ctx.Request.URI().Path()) + " " +  string(ctx.Request.Header.Method())
+	metrics.Errors.WithLabelValues(path, err.Error()).Inc()
 	err = h.errorWorker.ServeJSONError(ctx, err)
 	if err != nil {
+		metrics.Errors.WithLabelValues(path, err.Error()).Inc()
 		h.errorWorker.ServeFatalError(ctx)
 	}
 	return
