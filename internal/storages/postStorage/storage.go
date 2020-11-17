@@ -16,7 +16,7 @@ const (
 type Storage interface {
 	InsertPost(inputPost models.InputPost) (postID int, err error)
 
-	UpdatePostStatus(postID int, status int) (err error)
+	UpdatePostStatus(postID int, groupID int, status int) (err error)
 
 	SelectFileIDs(postIDs []int) (matches []models.PostFileMatch, err error)
 	SelectPhotoIDs(postIDs []int) (matches []models.PostPhotoMatch, err error)
@@ -127,13 +127,20 @@ func (s *storage) insertFiles(tx *sql.Tx, files []int, postID int) (err error) {
 	return
 }
 
-func (s *storage) UpdatePostStatus(postID int, status int) (err error) {
+func (s *storage) UpdatePostStatus(postID int, groupID int, status int) (err error) {
 	const sqlQuery = `
 	UPDATE posts
-	SET status_id = $2
-	WHERE id = $1;`
+	SET status_id = $3
+	WHERE id = $1 AND group_id = $2;`
 
-	_, err = s.db.Exec(sqlQuery, postID, status)
+	res, err := s.db.Exec(sqlQuery, postID, groupID, status)
+	if err != nil {
+		return err
+	}
+
+	if changed, _ := res.RowsAffected(); changed != 1 {
+		return errors.New("not exist")
+	}
 
 	return
 }

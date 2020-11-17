@@ -8,6 +8,7 @@ type Handler interface {
 	Create(ctx *fasthttp.RequestCtx)
 	GetList(ctx *fasthttp.RequestCtx)
 	Mark(ctx *fasthttp.RequestCtx)
+	Delete(ctx *fasthttp.RequestCtx)
 }
 
 type handler struct {
@@ -78,6 +79,26 @@ func (h *handler) Mark(ctx *fasthttp.RequestCtx) {
 	}
 
 	err = h.postTransport.SetMarkEncode(ctx)
+	if err != nil {
+		h.handleError(err, ctx)
+		return
+	}
+}
+
+func (h *handler) Delete(ctx *fasthttp.RequestCtx) {
+	request, err := h.postTransport.DeletePostDecode(ctx)
+	if err != nil {
+		h.handleError(err, ctx)
+		return
+	}
+
+	err = h.postService.Delete(request)
+	if err != nil {
+		h.handleError(err, ctx)
+		return
+	}
+
+	err = h.postTransport.DeletePostEncode(ctx)
 	if err != nil {
 		h.handleError(err, ctx)
 		return

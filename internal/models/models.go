@@ -10,6 +10,7 @@ type OptBool struct {
 	Value   bool
 	Defined bool
 }
+
 type GetPostListRequest struct {
 	UserID    int
 	GroupID   int
@@ -18,17 +19,17 @@ type GetPostListRequest struct {
 	Mark      OptBool
 }
 
-type MainPost struct {
-	ID          int         `json:"id"`
-	CreateBy    int         `json:"-"`
-	CreatAt     time.Time   `json:"-"`
-	PublishDate time.Time   `json:"publishDate"`
-	GroupID     int         `json:"groupID"`
-	Text        string      `json:"text"`
-	Status      string      `json:"Status"`
-	Interviews  []Interview `json:"interviews"`
-	Payments    []Payment   `json:"payments"`
-}
+//type MainPost struct {
+//	ID          int         `json:"id"`
+//	CreateBy    int         `json:"-"`
+//	CreatAt     time.Time   `json:"-"`
+//	PublishDate time.Time   `json:"publishDate"`
+//	GroupID     int         `json:"groupID"`
+//	Text        string      `json:"text"`
+//	Status      string      `json:"Status"`
+//	Interviews  []Interview `json:"interviews"`
+//	Payments    []Payment   `json:"payments"`
+//}
 
 type InputPost struct {
 	ID          int             `json:"id"`
@@ -111,11 +112,21 @@ func (p *Posts) Less(i, j int) bool {
 	return p.Posts[i].Order < p.Posts[j].Order
 }
 
+type UserRequest struct {
+	UserID int
+}
+
 type MarkPost struct {
-	UserID  int
-	PostID  int
+	UserRequest
+	PostID int
 	GroupID int
 	Mark    bool
+}
+
+type DeletePostRequest struct {
+	UserRequest
+	PostID int `json:"postId"`
+	GroupID int `json:"groupId"`
 }
 
 type Interview struct {

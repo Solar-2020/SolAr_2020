@@ -7,8 +7,8 @@ import (
 
 type postStorage interface {
 	InsertPost(inputPost models.InputPost) (postID int, err error)
-
-	UpdatePostStatus(postID int, status int) (err error)
+	UpdatePostStatus(postID int, groupID int, status int) (err error)
+	SetMark(postID int, mark bool, group int) (err error)
 
 	SelectFileIDs(postIDs []int) (matches []models.PostFileMatch, err error)
 	SelectPhotoIDs(postIDs []int) (matches []models.PostPhotoMatch, err error)
@@ -16,9 +16,12 @@ type postStorage interface {
 	SelectPosts(request models.GetPostListRequest) (posts []models.InputPost, err error)
 
 	SelectInterviews(postIDs []int) (interviews []models.Interview, err error)
-
-	SetMark(postID int, mark bool, group int) (err error)
 }
+const (
+	PostStatusCreating int = iota + 1
+	PostStatusCreated
+	PostStatusRemoved
+)
 
 type uploadStorage interface {
 	SelectCountFiles(fileIDs []int, userID int) (countFiles int, err error)

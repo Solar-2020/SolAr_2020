@@ -14,6 +14,7 @@ type Service interface {
 	Create(request models.InputPost) (response models.Post, err error)
 	GetList(request models.GetPostListRequest) (response []models.PostResult, err error)
 	SetMark(request models.MarkPost) (err error)
+	Delete(request models.DeletePostRequest) (err error)
 }
 
 type service struct {
@@ -81,7 +82,7 @@ func (s *service) Create(request models.InputPost) (response models.Post, err er
 	}
 
 	// TODO CHANGE TO CONST
-	err = s.postsStorage.UpdatePostStatus(response.ID, 2)
+	err = s.postsStorage.UpdatePostStatus(response.ID, request.GroupID, PostStatusCreated)
 	if err != nil {
 		return
 	}
@@ -272,6 +273,19 @@ func (s *service) SetMark(request models.MarkPost) (err error) {
 	err = s.postsStorage.SetMark(request.PostID, request.Mark, request.GroupID)
 	if err != nil {
 		err = errors.New("cannot set mark: " + err.Error())
+	}
+	return
+}
+
+func (s *service) Delete(request models.DeletePostRequest) (err error) {
+	roleID, err := s.groupClient.GetUserRole(request.UserID, request.GroupID)
+	if err != nil || roleID != 1 {
+		err = fmt.Errorf("restricted")
+		return
+	}
+	err = s.postsStorage.UpdatePostStatus(request.PostID, request.GroupID, PostStatusRemoved)
+	if err != nil {
+		err = errors.New("cannot remove post: " + err.Error())
 	}
 	return
 }
