@@ -1,7 +1,6 @@
 package postsHandler
 
 import (
-	"github.com/Solar-2020/SolAr_Backend_2020/internal/metrics"
 	"github.com/valyala/fasthttp"
 )
 
@@ -105,3 +104,4 @@ func (h *handler) Delete(ctx *fasthttp.RequestCtx) {
 		return
 	}
 }
+

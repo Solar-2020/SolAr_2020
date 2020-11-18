@@ -1,7 +1,6 @@
 package uploadHandler
 
 import (
-	"github.com/Solar-2020/SolAr_Backend_2020/internal/metrics"
 	"github.com/valyala/fasthttp"
 )
 
