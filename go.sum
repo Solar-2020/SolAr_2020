@@ -17,6 +17,10 @@ github.com/Solar-2020/Authorization-Backend v1.0.1 h1:ayBPz3FY0Qr405xjKIibPTfDIU
 github.com/Solar-2020/Authorization-Backend v1.0.1/go.mod h1:B7jDIQlXDJiD6hx4GB5vlyvI4rwRnqtJOyZvu5MfD2g=
 github.com/Solar-2020/Authorization-Backend v1.0.2 h1:URCh1DDeeDg4fDJuHI3T4WaxLdQ5QSa90luPpka9xN0=
 github.com/Solar-2020/Authorization-Backend v1.0.2/go.mod h1:rbjAnASFIfbjnLubRs8hNBsROP4gotKwlE0sRZW6e74=
+github.com/Solar-2020/Authorization-Backend v1.0.3 h1:wgmfpTRy+ekKvCwvdWD0LS193+kISszsW24q4BmXPyY=
+github.com/Solar-2020/Authorization-Backend v1.0.3/go.mod h1:rbjAnASFIfbjnLubRs8hNBsROP4gotKwlE0sRZW6e74=
+github.com/Solar-2020/Authorization-Backend v1.0.4 h1:yaeyMC7W9vge+DlcW9gK+k3mED5Lsh5stcLzOSm1IRI=
+github.com/Solar-2020/Authorization-Backend v1.0.4/go.mod h1:rbjAnASFIfbjnLubRs8hNBsROP4gotKwlE0sRZW6e74=
 github.com/Solar-2020/GoUtils v0.0.0-20201028130128-34e4f0f5a23d/go.mod h1:JgUyQ2m5+AxfNqe6/llRQGOxCeisBqBn/sp3Wt/elhU=
 github.com/Solar-2020/GoUtils v1.0.1 h1:BPjFb1YeXWWK80Bv7InPR1WKde8rvcQ2DmK0wKHQh+g=
 github.com/Solar-2020/GoUtils v1.0.1/go.mod h1:JgUyQ2m5+AxfNqe6/llRQGOxCeisBqBn/sp3Wt/elhU=
