@@ -1,11 +1,13 @@
 package posts
 
 import (
+	account "github.com/Solar-2020/Account-Backend/pkg/models"
 	interviewModels "github.com/Solar-2020/Interview-Backend/pkg/models"
-	"github.com/Solar-2020/SolAr_Backend_2020/internal/clients/account"
 	"github.com/Solar-2020/SolAr_Backend_2020/internal/models"
 	"github.com/pkg/errors"
+	"github.com/valyala/fasthttp"
 	"sort"
+	"strconv"
 )
 
 type Service interface {
@@ -21,10 +23,11 @@ type service struct {
 	interviewStorage interviewStorage
 	paymentClient    paymentClient
 	groupClient      groupClient
-	accountClient    account.Client
+	accountClient    accountClient
+	errorWorker      errorWorker
 }
 
-func NewService(postsStorage postStorage, uploadStorage uploadStorage, interviewStorage interviewStorage, groupClient groupClient, accountClient account.Client, paymentClient paymentClient) Service {
+func NewService(postsStorage postStorage, uploadStorage uploadStorage, interviewStorage interviewStorage, groupClient groupClient, accountClient accountClient, paymentClient paymentClient, errorWorker errorWorker) Service {
 	return &service{
 		postsStorage:     postsStorage,
 		uploadStorage:    uploadStorage,
@@ -32,6 +35,7 @@ func NewService(postsStorage postStorage, uploadStorage uploadStorage, interview
 		groupClient:      groupClient,
 		accountClient:    accountClient,
 		paymentClient:    paymentClient,
+		errorWorker:      errorWorker,
 	}
 }
 
@@ -85,20 +89,20 @@ func (s *service) Create(request models.InputPost) (response models.Post, err er
 }
 
 func (s *service) validateCreate(post models.InputPost) (err error) {
-	if len(post.Files) > 10 {
-		return errors.New("В посте не может быть больше 10 файлов")
+	if len(post.Files) > FilesLimit {
+		return s.errorWorker.NewError(fasthttp.StatusBadRequest, ErrorFilesLimit, errors.Wrap(ErrorFilesLimit, strconv.Itoa(len(post.Files))))
 	}
 
-	if len(post.Photos) > 10 {
-		return errors.New("В посте не может быть больше 10 фотографий")
+	if len(post.Photos) > PhotosLimit {
+		return s.errorWorker.NewError(fasthttp.StatusBadRequest, ErrorPhotosLimit, errors.Wrap(ErrorFilesLimit, strconv.Itoa(len(post.Photos))))
 	}
 
-	if len(post.Payments) > 10 {
-		return errors.New("В посте не может быть больше 10 оплат")
+	if len(post.Payments) > PaymentsLimit {
+		return s.errorWorker.NewError(fasthttp.StatusBadRequest, ErrorPaymentsLimit, errors.Wrap(ErrorFilesLimit, strconv.Itoa(len(post.Payments))))
 	}
 
-	if len(post.Interviews) > 10 {
-		return errors.New("В посте не может быть больше 10 опросов")
+	if len(post.Interviews) > InterviewsLimit {
+		return s.errorWorker.NewError(fasthttp.StatusBadRequest, ErrorInterviewsLimit, errors.Wrap(ErrorFilesLimit, strconv.Itoa(len(post.Interviews))))
 	}
 
 	return
@@ -107,11 +111,11 @@ func (s *service) validateCreate(post models.InputPost) (err error) {
 func (s *service) checkFiles(fileIDs []int, userID int) (err error) {
 	countFiles, err := s.uploadStorage.SelectCountFiles(fileIDs, userID)
 	if err != nil {
-		return
+		return s.errorWorker.NewError(fasthttp.StatusInternalServerError, nil, err)
 	}
 
 	if countFiles != len(fileIDs) {
-		return errors.New("Выбранные файлы не найдены")
+		return s.errorWorker.NewError(fasthttp.StatusBadRequest, ErrorFilesNotFound, ErrorFilesNotFound)
 	}
 
 	return
@@ -124,7 +128,7 @@ func (s *service) checkPhotos(photoIDs []int, userID int) (err error) {
 	}
 
 	if countFiles != len(photoIDs) {
-		return errors.New("Выбранные фотографии не найдены")
+		return s.errorWorker.NewError(fasthttp.StatusBadRequest, ErrorPhotosNotFound, ErrorPhotosNotFound)
 	}
 
 	return
@@ -138,6 +142,7 @@ func (s *service) GetList(request models.GetPostListRequest) (response []models.
 
 	posts, err := s.postsStorage.SelectPosts(request)
 	if err != nil {
+		err = s.errorWorker.NewError(fasthttp.StatusInternalServerError, nil, err)
 		return
 	}
 
@@ -242,8 +247,8 @@ func (s *service) GetList(request models.GetPostListRequest) (response []models.
 	sort.Sort(&sortPost)
 
 	for i, _ := range sortPost.Posts {
-		var user models.User
-		user, err = s.accountClient.GetUserByID(sortPost.Posts[i].CreateBy)
+		var user account.User
+		user, err = s.accountClient.GetUserByUid(sortPost.Posts[i].CreateBy)
 		if err != nil {
 			return
 		}

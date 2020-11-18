@@ -1,6 +1,7 @@
 package models
 
 import (
+	account "github.com/Solar-2020/Account-Backend/pkg/models"
 	"github.com/Solar-2020/Interview-Backend/pkg/models"
 	"github.com/shopspring/decimal"
 	"time"
@@ -32,34 +33,34 @@ type GetPostListRequest struct {
 //}
 
 type InputPost struct {
-	ID          int             `json:"id"`
-	CreateBy    int             `json:"createBy"`
-	CreatAt     time.Time       `json:"-"`
-	PublishDate time.Time       `json:"publishDate"`
-	GroupID     int             `json:"groupID"`
-	Text        string          `json:"text"`
-	Status      string          `json:"Status"`
-	Photos      []int           `json:"photos"`
-	Files       []int           `json:"files"`
-	Interviews  []Interview     `json:"interviews"`
-	Payments    []Payment `json:"payments"`
-	Marked      bool            `json:"marked"`
+	ID          int         `json:"id"`
+	CreateBy    int         `json:"createBy"`
+	CreatAt     time.Time   `json:"-"`
+	PublishDate time.Time   `json:"publishDate"`
+	GroupID     int         `json:"groupID"`
+	Text        string      `json:"text"`
+	Status      string      `json:"Status"`
+	Photos      []int       `json:"photos"`
+	Files       []int       `json:"files"`
+	Interviews  []Interview `json:"interviews"`
+	Payments    []Payment   `json:"payments"`
+	Marked      bool        `json:"marked"`
 }
 
 type Post struct {
-	ID          int             `json:"id"`
-	CreateBy    int             `json:"-"`
-	CreatAt     time.Time       `json:"-"`
-	PublishDate time.Time       `json:"publishDate"`
-	GroupID     int             `json:"groupID"`
-	Text        string          `json:"text"`
-	Status      string          `json:"Status"`
-	Photos      []Photo         `json:"photos"`
-	Files       []File          `json:"files"`
-	Interviews  []Interview     `json:"interviews"`
-	Payments    []Payment `json:"payments"`
-	Order       int             `json:"-"`
-	Marked      bool            `json:"marked"`
+	ID          int         `json:"id"`
+	CreateBy    int         `json:"-"`
+	CreatAt     time.Time   `json:"-"`
+	PublishDate time.Time   `json:"publishDate"`
+	GroupID     int         `json:"groupID"`
+	Text        string      `json:"text"`
+	Status      string      `json:"Status"`
+	Photos      []Photo     `json:"photos"`
+	Files       []File      `json:"files"`
+	Interviews  []Interview `json:"interviews"`
+	Payments    []Payment   `json:"payments"`
+	Order       int         `json:"-"`
+	Marked      bool        `json:"marked"`
 }
 
 type CreateRequest struct {
@@ -78,10 +79,9 @@ type Payment struct {
 	PaymentAccount string          `json:"paymentAccount"`
 }
 
-
 type PostResult struct {
 	ID          int                      `json:"id"`
-	Author      User                     `json:"author"`
+	Author      account.User             `json:"author"`
 	CreateBy    int                      `json:"-"`
 	CreatAt     time.Time                `json:"-"`
 	PublishDate time.Time                `json:"publishDate"`
@@ -118,14 +118,14 @@ type UserRequest struct {
 
 type MarkPost struct {
 	UserRequest
-	PostID int
+	PostID  int
 	GroupID int
 	Mark    bool
 }
 
 type DeletePostRequest struct {
 	UserRequest
-	PostID int `json:"postId"`
+	PostID  int `json:"postId"`
 	GroupID int `json:"groupId"`
 }
 

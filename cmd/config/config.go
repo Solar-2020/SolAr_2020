@@ -16,4 +16,5 @@ type config struct {
 	ServerSecret                   string `envconfig:"SERVER_SECRET" default:"Basic secret"`
 	PaymentServiceAddress          string `envconfig:"PAYMENT_SERVICE_ADDRESS" default:"develop.pay-together.ru"`
 	GroupServiceHost               string `envconfig:"GROUP_SERVICE_HOST" default:"develop.pay-together.ru"`
+	AccountServiceHost             string `envconfig:"ACCOUNT_SERVICE_HOST" default:"develop.pay-together.ru"`
 }

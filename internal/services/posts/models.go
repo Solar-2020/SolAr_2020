@@ -1,8 +1,11 @@
 package posts
 
 import (
+	account "github.com/Solar-2020/Account-Backend/pkg/models"
 	interviewModels "github.com/Solar-2020/Interview-Backend/pkg/models"
 	"github.com/Solar-2020/SolAr_Backend_2020/internal/models"
+	"github.com/pkg/errors"
+	"strconv"
 )
 
 const (
@@ -15,6 +18,19 @@ const (
 	PostStatusCreating = 1
 	PostStatusCreated  = 2
 	PostStatusRemoved  = 3
+)
+
+var (
+	FilesLimit           = 10
+	ErrorFilesLimit      = errors.New("Превышен лимит файлов равный " + strconv.Itoa(FilesLimit))
+	PhotosLimit          = 10
+	ErrorPhotosLimit     = errors.New("Превышен лимит фотографий равный " + strconv.Itoa(PhotosLimit))
+	InterviewsLimit      = 10
+	ErrorInterviewsLimit = errors.New("Превышен лимит опросов равный " + strconv.Itoa(InterviewsLimit))
+	PaymentsLimit        = 2
+	ErrorPaymentsLimit   = errors.New("Превышен лимит платежей равный " + strconv.Itoa(PaymentsLimit))
+	ErrorFilesNotFound   = errors.New("Выбранные файлы не найдены")
+	ErrorPhotosNotFound  = errors.New("Выбранные фотографии не найдены")
 )
 
 type postStorage interface {
@@ -51,4 +67,12 @@ type paymentClient interface {
 
 type groupClient interface {
 	CheckPermission(userID, groupId, actionID int) (err error)
+}
+
+type accountClient interface {
+	GetUserByUid(userID int) (user account.User, err error)
+}
+
+type errorWorker interface {
+	NewError(httpCode int, responseError error, fullError error) (err error)
 }

@@ -12,3 +12,7 @@ type uploadStorage interface {
 	InsertFile(file models.File, userID int) (fileID int, err error)
 	InsertPhoto(photo models.Photo, userID int) (photoID int, err error)
 }
+
+type errorWorker interface {
+	NewError(httpCode int, responseError error, fullError error) (err error)
+}
