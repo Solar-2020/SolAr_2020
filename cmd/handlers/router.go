@@ -4,7 +4,11 @@ import (
 	httputils "github.com/Solar-2020/GoUtils/http"
 	postsHandler "github.com/Solar-2020/SolAr_Backend_2020/cmd/handlers/posts"
 	uploadHandler "github.com/Solar-2020/SolAr_Backend_2020/cmd/handlers/upload"
+	"github.com/Solar-2020/SolAr_Backend_2020/internal/metrics"
 	"github.com/buaazp/fasthttprouter"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/valyala/fasthttp/fasthttpadaptor"
 )
 
 func NewFastHttpRouter(posts postsHandler.Handler, upload uploadHandler.Handler, middleware Middleware) *fasthttprouter.Router {
@@ -23,6 +27,11 @@ func NewFastHttpRouter(posts postsHandler.Handler, upload uploadHandler.Handler,
 
 	router.Handle("POST", "/api/upload/photo", middleware.Log(middleware.ExternalAuth(upload.Photo)))
 	router.Handle("POST", "/api/upload/file", middleware.Log(middleware.ExternalAuth(upload.File)))
+
+	prometheus.MustRegister(metrics.Errors)
+	prometheus.MustRegister(metrics.ResponseTime)
+	prometheus.MustRegister(metrics.Hits)
+	router.Handle("GET", "/metrics", fasthttpadaptor.NewFastHTTPHandler(promhttp.Handler()))
 
 	return router
 }

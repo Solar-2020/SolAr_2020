@@ -3,8 +3,10 @@ package handlers
 import (
 	"github.com/Solar-2020/GoUtils/log"
 	"github.com/Solar-2020/SolAr_Backend_2020/internal/clients/auth"
+	"github.com/Solar-2020/SolAr_Backend_2020/internal/metrics"
 	"github.com/rs/zerolog"
 	"github.com/valyala/fasthttp"
+	"strconv"
 	"time"
 )
 
@@ -36,13 +38,20 @@ func (m middleware) Log(next fasthttp.RequestHandler) fasthttp.RequestHandler {
 		}
 
 		defer func(begin time.Time) {
+			execTime := time.Since(begin).Milliseconds()
 			logger.Printf(
 				ctx,
 				"End: %s, status: %d, time: %d ms",
 				ctx.Request.URI().String(),
 				ctx.Response.StatusCode(),
-				time.Since(begin).Milliseconds(),
+				execTime,
 			)
+
+			path := string(ctx.Request.URI().Path()) + " " +  string(ctx.Request.Header.Method())
+				metrics.Hits.
+				WithLabelValues(path, strconv.Itoa(ctx.Response.StatusCode())).
+				Inc()
+			metrics.ResponseTime.WithLabelValues(path).Observe(float64(execTime))
 		}(time.Now())
 
 		next(ctx)
