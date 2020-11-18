@@ -6,7 +6,7 @@ var ResponseTime = prometheus.NewSummaryVec(prometheus.SummaryOpts{
 	Name: "response_time",
 	Help: "Time request executed",
 	Objectives: map[float64]float64{0.5: 0.05, 0.9: 0.01, 0.99: 0.001},
-}, []string{"endpoint"},)
+}, []string{"endpoint"})
 
 var Errors = prometheus.NewCounterVec(prometheus.CounterOpts{
 	Name: "errors",

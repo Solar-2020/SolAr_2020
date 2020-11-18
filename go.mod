@@ -4,8 +4,8 @@ go 1.14
 
 require (
 	github.com/Solar-2020/Account-Backend v1.0.5
-	github.com/Solar-2020/Authorization-Backend v1.0.1
-	github.com/Solar-2020/GoUtils v1.0.3
+	github.com/Solar-2020/Authorization-Backend v1.0.2
+	github.com/Solar-2020/GoUtils v1.0.4
 	github.com/Solar-2020/Group-Backend v1.0.4
 	github.com/Solar-2020/Interview-Backend v1.0.0
 	github.com/buaazp/fasthttprouter v0.1.1

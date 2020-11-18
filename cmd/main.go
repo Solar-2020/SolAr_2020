@@ -3,13 +3,14 @@ package main
 import (
 	"database/sql"
 	account "github.com/Solar-2020/Account-Backend/pkg/client"
+	auth "github.com/Solar-2020/Authorization-Backend/pkg/client"
 	"github.com/Solar-2020/GoUtils/http/errorWorker"
 	groupClient "github.com/Solar-2020/Group-Backend/pkg/client"
 	"github.com/Solar-2020/SolAr_Backend_2020/cmd/config"
 	"github.com/Solar-2020/SolAr_Backend_2020/cmd/handlers"
+	"github.com/Solar-2020/SolAr_Backend_2020/cmd/handlers/middleware"
 	postsHandler "github.com/Solar-2020/SolAr_Backend_2020/cmd/handlers/posts"
 	uploadHandler "github.com/Solar-2020/SolAr_Backend_2020/cmd/handlers/upload"
-	"github.com/Solar-2020/SolAr_Backend_2020/internal/clients/auth"
 	"github.com/Solar-2020/SolAr_Backend_2020/internal/clients/interview"
 	"github.com/Solar-2020/SolAr_Backend_2020/internal/clients/payment"
 	"github.com/Solar-2020/SolAr_Backend_2020/internal/services/posts"
@@ -72,9 +73,9 @@ func main() {
 
 	postsHandler := postsHandler.NewHandler(postsService, postsTransport, errorWorker)
 
-	authClient := auth.NewClient(config.Config.AuthServiceAddress, config.Config.ServerSecret)
+	authClient := auth.NewClient(config.Config.AuthorizationServiceHost, config.Config.ServerSecret)
 
-	middlewares := handlers.NewMiddleware(&log, authClient)
+	middlewares := middleware.NewMiddleware(&log, authClient)
 
 	server := fasthttp.Server{
 		Handler: handlers.NewFastHttpRouter(postsHandler, uploadHandler, middlewares).Handler,
