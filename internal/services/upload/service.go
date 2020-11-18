@@ -11,11 +11,13 @@ type Service interface {
 
 type service struct {
 	uploadStorage uploadStorage
+	errorWorker   errorWorker
 }
 
-func NewService(uploadStorage uploadStorage) Service {
+func NewService(uploadStorage uploadStorage, errorWorker errorWorker) Service {
 	return &service{
 		uploadStorage: uploadStorage,
+		errorWorker:   errorWorker,
 	}
 }
 

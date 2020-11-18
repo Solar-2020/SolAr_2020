@@ -16,13 +16,12 @@ const (
 type Storage interface {
 	InsertPost(inputPost models.InputPost) (postID int, err error)
 
-	UpdatePostStatus(postID int, status int) (err error)
+	UpdatePostStatus(postID int, groupID int, status int) (err error)
 
 	SelectFileIDs(postIDs []int) (matches []models.PostFileMatch, err error)
 	SelectPhotoIDs(postIDs []int) (matches []models.PostPhotoMatch, err error)
 
 	SelectPosts(request models.GetPostListRequest) (posts []models.InputPost, err error)
-	SelectPayments(postIDs []int) (payments []models.Payment, err error)
 	SelectInterviews(postIDs []int) (interviews []models.Interview, err error)
 
 	SetMark(postID int, mark bool, group int) (err error)
@@ -128,13 +127,20 @@ func (s *storage) insertFiles(tx *sql.Tx, files []int, postID int) (err error) {
 	return
 }
 
-func (s *storage) UpdatePostStatus(postID int, status int) (err error) {
+func (s *storage) UpdatePostStatus(postID int, groupID int, status int) (err error) {
 	const sqlQuery = `
 	UPDATE posts
-	SET status_id = $2
-	WHERE id = $1;`
+	SET status_id = $3
+	WHERE id = $1 AND group_id = $2;`
 
-	_, err = s.db.Exec(sqlQuery, postID, status)
+	res, err := s.db.Exec(sqlQuery, postID, groupID, status)
+	if err != nil {
+		return err
+	}
+
+	if changed, _ := res.RowsAffected(); changed != 1 {
+		return errors.New("not exist")
+	}
 
 	return
 }
@@ -213,42 +219,6 @@ func (s *storage) SelectInterviews(postIDs []int) (interviews []models.Interview
 	}
 
 	// TODO SELECT ANSWERS
-
-	return
-}
-
-func (s *storage) SelectPayments(postIDs []int) (payments []models.Payment, err error) {
-	const sqlQueryTemplate = `
-	SELECT p.id, p.cost, p.currency_id, p.post_id
-	FROM payments AS p
-	WHERE i.post_id IN `
-
-	sqlQuery := sqlQueryTemplate + createIN(len(postIDs))
-
-	var params []interface{}
-
-	for i, _ := range postIDs {
-		params = append(params, postIDs[i])
-	}
-
-	for i := 1; i <= len(postIDs)*1; i++ {
-		sqlQuery = strings.Replace(sqlQuery, "?", "$"+strconv.Itoa(i), 1)
-	}
-
-	rows, err := s.db.Query(sqlQuery, params...)
-	if err != nil {
-		return
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		var tempPayment models.Payment
-		err = rows.Scan(&tempPayment.ID, &tempPayment.Cost, &tempPayment.Currency, &tempPayment.PostID)
-		if err != nil {
-			return
-		}
-		payments = append(payments, tempPayment)
-	}
 
 	return
 }

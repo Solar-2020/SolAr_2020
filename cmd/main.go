@@ -2,21 +2,18 @@ package main
 
 import (
 	"database/sql"
-	asapi "github.com/Solar-2020/Account-Backend/pkg/api"
-	authapi "github.com/Solar-2020/Authorization-Backend/pkg/api"
-	"github.com/Solar-2020/GoUtils/context/session"
+	account "github.com/Solar-2020/Account-Backend/pkg/client"
 	"github.com/Solar-2020/GoUtils/http/errorWorker"
+	groupClient "github.com/Solar-2020/Group-Backend/pkg/client"
 	"github.com/Solar-2020/SolAr_Backend_2020/cmd/config"
 	"github.com/Solar-2020/SolAr_Backend_2020/cmd/handlers"
 	postsHandler "github.com/Solar-2020/SolAr_Backend_2020/cmd/handlers/posts"
 	uploadHandler "github.com/Solar-2020/SolAr_Backend_2020/cmd/handlers/upload"
-	"github.com/Solar-2020/SolAr_Backend_2020/internal/clients/account"
 	"github.com/Solar-2020/SolAr_Backend_2020/internal/clients/auth"
-	"github.com/Solar-2020/SolAr_Backend_2020/internal/clients/group"
 	"github.com/Solar-2020/SolAr_Backend_2020/internal/clients/interview"
+	"github.com/Solar-2020/SolAr_Backend_2020/internal/clients/payment"
 	"github.com/Solar-2020/SolAr_Backend_2020/internal/services/posts"
 	"github.com/Solar-2020/SolAr_Backend_2020/internal/services/upload"
-	"github.com/Solar-2020/SolAr_Backend_2020/internal/storages/paymentStorage"
 	"github.com/Solar-2020/SolAr_Backend_2020/internal/storages/postStorage"
 	"github.com/Solar-2020/SolAr_Backend_2020/internal/storages/uploadStorage"
 	"github.com/kelseyhightower/envconfig"
@@ -55,30 +52,22 @@ func main() {
 	uploadDB.SetMaxIdleConns(5)
 	uploadDB.SetMaxOpenConns(10)
 
-	//userDB, err := sql.Open("postgres", cfg.UserDataBaseConnectionString)
-	//if err != nil {
-	//	log.Fatal().Msg(err.Error())
-	//	return
-	//}
-
-	//userDB.SetMaxIdleConns(5)
-	//userDB.SetMaxOpenConns(10)
-	groupClient := group.NewClient(config.Config.GroupServiceAddress, config.Config.ServerSecret)
+	group := groupClient.NewClient(config.Config.GroupServiceHost, config.Config.ServerSecret)
 
 	errorWorker := errorWorker.NewErrorWorker()
 
 	uploadStorage := uploadStorage.NewStorage(config.Config.PhotoPath, config.Config.FilePath, uploadDB)
-	uploadService := upload.NewService(uploadStorage)
+	uploadService := upload.NewService(uploadStorage, errorWorker)
 	uploadTransport := upload.NewTransport()
 	uploadHandler := uploadHandler.NewHandler(uploadService, uploadTransport, errorWorker)
 
 	//interviewStorage := interviewStorage.NewStorage(postsDB)
-	accountClient := account.NewClient(config.Config.AccountServiceAddress, config.Config.ServerSecret)
+	accountClient := account.NewClient(config.Config.AccountServiceHost, config.Config.ServerSecret)
 
 	interviewStorage := interview.NewClient(config.Config.InterviewService, config.Config.ServerSecret)
-	paymentStorage := paymentStorage.NewStorage(postsDB)
+	paymentClient := payment.NewClient(config.Config.PaymentServiceAddress, config.Config.ServerSecret)
 	postStorage := postStorage.NewStorage(postsDB)
-	postsService := posts.NewService(postStorage, uploadStorage, interviewStorage, paymentStorage, groupClient, accountClient)
+	postsService := posts.NewService(postStorage, uploadStorage, interviewStorage, group, accountClient, paymentClient, errorWorker)
 	postsTransport := posts.NewTransport()
 
 	postsHandler := postsHandler.NewHandler(postsService, postsTransport, errorWorker)
@@ -86,8 +75,6 @@ func main() {
 	authClient := auth.NewClient(config.Config.AuthServiceAddress, config.Config.ServerSecret)
 
 	middlewares := handlers.NewMiddleware(&log, authClient)
-
-	initServices()
 
 	server := fasthttp.Server{
 		Handler: handlers.NewFastHttpRouter(postsHandler, uploadHandler, middlewares).Handler,
@@ -115,15 +102,4 @@ func main() {
 		//dbConnection.Shutdown()
 		log.Info().Str("msg", "goodbye").Send()
 	}(<-c)
-}
-
-func initServices() {
-	authService := authapi.AuthClient{
-		Addr: config.Config.AuthServiceAddress,
-	}
-	session.RegisterAuthService(&authService)
-	accountService := asapi.AccountClient{
-		Addr: config.Config.AccountServiceAddress,
-	}
-	session.RegisterAccountService(&accountService)
 }

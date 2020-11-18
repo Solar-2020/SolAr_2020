@@ -17,6 +17,9 @@ type Transport interface {
 
 	SetMarkDecode(ctx *fasthttp.RequestCtx) (request models.MarkPost, err error)
 	SetMarkEncode(ctx *fasthttp.RequestCtx) (err error)
+
+	DeletePostDecode(ctx *fasthttp.RequestCtx) (request models.DeletePostRequest, err error)
+	DeletePostEncode(ctx *fasthttp.RequestCtx) (err error)
 }
 
 type transport struct {
@@ -104,6 +107,24 @@ func (t transport) SetMarkDecode(ctx *fasthttp.RequestCtx) (request models.MarkP
 }
 
 func (t transport) SetMarkEncode(ctx *fasthttp.RequestCtx) (err error) {
+	ctx.Response.Header.SetContentType("application/json")
+	ctx.Response.Header.SetStatusCode(fasthttp.StatusOK)
+	return
+}
+
+func (t transport) DeletePostDecode(ctx *fasthttp.RequestCtx) (request models.DeletePostRequest, err error) {
+	request.PostID = ctx.QueryArgs().GetUintOrZero("postId")
+	request.GroupID = ctx.QueryArgs().GetUintOrZero("groupId")
+
+	userID, ok := ctx.UserValue("userID").(int)
+	if ok {
+		request.UserID = userID
+		return
+	}
+	return
+}
+
+func (t transport) DeletePostEncode(ctx *fasthttp.RequestCtx) (err error) {
 	ctx.Response.Header.SetContentType("application/json")
 	ctx.Response.Header.SetStatusCode(fasthttp.StatusOK)
 	return

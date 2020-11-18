@@ -1,38 +1,41 @@
 package posts
 
 import (
-	"errors"
-	"fmt"
+	account "github.com/Solar-2020/Account-Backend/pkg/models"
 	interviewModels "github.com/Solar-2020/Interview-Backend/pkg/models"
-	"github.com/Solar-2020/SolAr_Backend_2020/internal/clients/account"
-	"github.com/Solar-2020/SolAr_Backend_2020/internal/clients/group"
 	"github.com/Solar-2020/SolAr_Backend_2020/internal/models"
+	"github.com/pkg/errors"
+	"github.com/valyala/fasthttp"
 	"sort"
+	"strconv"
 )
 
 type Service interface {
 	Create(request models.InputPost) (response models.Post, err error)
 	GetList(request models.GetPostListRequest) (response []models.PostResult, err error)
 	SetMark(request models.MarkPost) (err error)
+	Delete(request models.DeletePostRequest) (err error)
 }
 
 type service struct {
 	postsStorage     postStorage
 	uploadStorage    uploadStorage
 	interviewStorage interviewStorage
-	paymentStorage   paymentStorage
-	groupClient      group.Client
-	accountClient    account.Client
+	paymentClient    paymentClient
+	groupClient      groupClient
+	accountClient    accountClient
+	errorWorker      errorWorker
 }
 
-func NewService(postsStorage postStorage, uploadStorage uploadStorage, interviewStorage interviewStorage, paymentStorage paymentStorage, groupClient group.Client, accountClient account.Client) Service {
+func NewService(postsStorage postStorage, uploadStorage uploadStorage, interviewStorage interviewStorage, groupClient groupClient, accountClient accountClient, paymentClient paymentClient, errorWorker errorWorker) Service {
 	return &service{
 		postsStorage:     postsStorage,
 		uploadStorage:    uploadStorage,
 		interviewStorage: interviewStorage,
-		paymentStorage:   paymentStorage,
 		groupClient:      groupClient,
 		accountClient:    accountClient,
+		paymentClient:    paymentClient,
+		errorWorker:      errorWorker,
 	}
 }
 
@@ -41,18 +44,9 @@ func (s *service) Create(request models.InputPost) (response models.Post, err er
 		return
 	}
 
-	roleID, err := s.groupClient.GetUserRole(request.CreateBy, request.GroupID)
+	err = s.groupClient.CheckPermission(request.CreateBy, request.GroupID, CreatePostActionID)
 	if err != nil {
-		err = fmt.Errorf("restricted")
-		return
-	}
-
-	if roleID > 2 {
-		return response, errors.New("permission denied")
-	}
-
-	if err = s.checkGroup(request.GroupID, request.CreateBy); err != nil {
-		return
+		return response, err
 	}
 
 	if err = s.checkFiles(request.Files, request.CreateBy); err != nil {
@@ -73,13 +67,20 @@ func (s *service) Create(request models.InputPost) (response models.Post, err er
 		return
 	}
 
-	err = s.paymentStorage.InsertPayments(request.Payments, response.ID)
+	createRequest := models.CreateRequest{
+		CreateBy: request.CreateBy,
+		GroupID:  request.GroupID,
+		PostID:   response.ID,
+		Payments: request.Payments,
+	}
+
+	_, err = s.paymentClient.Create(createRequest)
 	if err != nil {
 		return
 	}
 
 	// TODO CHANGE TO CONST
-	err = s.postsStorage.UpdatePostStatus(response.ID, 2)
+	err = s.postsStorage.UpdatePostStatus(response.ID, request.GroupID, PostStatusCreated)
 	if err != nil {
 		return
 	}
@@ -88,37 +89,33 @@ func (s *service) Create(request models.InputPost) (response models.Post, err er
 }
 
 func (s *service) validateCreate(post models.InputPost) (err error) {
-	if len(post.Files) > 10 {
-		return errors.New("В посте не может быть больше 10 файлов")
+	if len(post.Files) > FilesLimit {
+		return s.errorWorker.NewError(fasthttp.StatusBadRequest, ErrorFilesLimit, errors.Wrap(ErrorFilesLimit, strconv.Itoa(len(post.Files))))
 	}
 
-	if len(post.Photos) > 10 {
-		return errors.New("В посте не может быть больше 10 фотографий")
+	if len(post.Photos) > PhotosLimit {
+		return s.errorWorker.NewError(fasthttp.StatusBadRequest, ErrorPhotosLimit, errors.Wrap(ErrorFilesLimit, strconv.Itoa(len(post.Photos))))
 	}
 
-	if len(post.Payments) > 10 {
-		return errors.New("В посте не может быть больше 10 оплат")
+	if len(post.Payments) > PaymentsLimit {
+		return s.errorWorker.NewError(fasthttp.StatusBadRequest, ErrorPaymentsLimit, errors.Wrap(ErrorFilesLimit, strconv.Itoa(len(post.Payments))))
 	}
 
-	if len(post.Interviews) > 10 {
-		return errors.New("В посте не может быть больше 10 опросов")
+	if len(post.Interviews) > InterviewsLimit {
+		return s.errorWorker.NewError(fasthttp.StatusBadRequest, ErrorInterviewsLimit, errors.Wrap(ErrorFilesLimit, strconv.Itoa(len(post.Interviews))))
 	}
 
-	return
-}
-
-func (s *service) checkGroup(groupID, userID int) (err error) {
 	return
 }
 
 func (s *service) checkFiles(fileIDs []int, userID int) (err error) {
 	countFiles, err := s.uploadStorage.SelectCountFiles(fileIDs, userID)
 	if err != nil {
-		return
+		return s.errorWorker.NewError(fasthttp.StatusInternalServerError, nil, err)
 	}
 
 	if countFiles != len(fileIDs) {
-		return errors.New("Выбранные файлы не найдены")
+		return s.errorWorker.NewError(fasthttp.StatusBadRequest, ErrorFilesNotFound, ErrorFilesNotFound)
 	}
 
 	return
@@ -131,25 +128,21 @@ func (s *service) checkPhotos(photoIDs []int, userID int) (err error) {
 	}
 
 	if countFiles != len(photoIDs) {
-		return errors.New("Выбранные фотографии не найдены")
+		return s.errorWorker.NewError(fasthttp.StatusBadRequest, ErrorPhotosNotFound, ErrorPhotosNotFound)
 	}
 
 	return
 }
 
 func (s *service) GetList(request models.GetPostListRequest) (response []models.PostResult, err error) {
-	roleID, err := s.groupClient.GetUserRole(request.UserID, request.GroupID)
+	err = s.groupClient.CheckPermission(request.UserID, request.GroupID, GetPostActionID)
 	if err != nil {
-		err = fmt.Errorf("restricted")
-		return
-	}
-
-	if roleID > 3 {
-		return response, errors.New("permission denied")
+		return response, err
 	}
 
 	posts, err := s.postsStorage.SelectPosts(request)
 	if err != nil {
+		err = s.errorWorker.NewError(fasthttp.StatusInternalServerError, nil, err)
 		return
 	}
 
@@ -173,7 +166,7 @@ func (s *service) GetList(request models.GetPostListRequest) (response []models.
 			Interviews:  make([]interviewModels.InterviewResult, 0),
 			Payments:    make([]models.Payment, 0),
 			Order:       index,
-			Marked: post.Marked,
+			Marked:      post.Marked,
 		}
 	}
 
@@ -187,7 +180,7 @@ func (s *service) GetList(request models.GetPostListRequest) (response []models.
 		return
 	}
 
-	payments, err := s.paymentStorage.SelectPayments(postIDs)
+	payments, err := s.paymentClient.GetByPostIDs(postIDs)
 	if err != nil {
 		return
 	}
@@ -254,8 +247,8 @@ func (s *service) GetList(request models.GetPostListRequest) (response []models.
 	sort.Sort(&sortPost)
 
 	for i, _ := range sortPost.Posts {
-		var user models.User
-		user, err = s.accountClient.GetUserByID(sortPost.Posts[i].CreateBy)
+		var user account.User
+		user, err = s.accountClient.GetUserByUid(sortPost.Posts[i].CreateBy)
 		if err != nil {
 			return
 		}
@@ -266,14 +259,27 @@ func (s *service) GetList(request models.GetPostListRequest) (response []models.
 }
 
 func (s *service) SetMark(request models.MarkPost) (err error) {
-	roleID, err := s.groupClient.GetUserRole(request.UserID, request.GroupID)
-	if err != nil || roleID != 1 {
-		err = fmt.Errorf("restricted")
-		return
+	err = s.groupClient.CheckPermission(request.UserID, request.GroupID, MarkPostActionID)
+	if err != nil {
+		return err
 	}
+
 	err = s.postsStorage.SetMark(request.PostID, request.Mark, request.GroupID)
 	if err != nil {
 		err = errors.New("cannot set mark: " + err.Error())
+	}
+	return
+}
+
+func (s *service) Delete(request models.DeletePostRequest) (err error) {
+	err = s.groupClient.CheckPermission(request.UserID, request.GroupID, DeletePostActionID)
+	if err != nil {
+		return err
+	}
+
+	err = s.postsStorage.UpdatePostStatus(request.PostID, request.GroupID, PostStatusRemoved)
+	if err != nil {
+		err = errors.New("cannot remove post: " + err.Error())
 	}
 	return
 }

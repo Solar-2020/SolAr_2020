@@ -9,6 +9,7 @@ type postService interface {
 	Create(request models.InputPost) (response models.Post, err error)
 	GetList(request models.GetPostListRequest) (response []models.PostResult, err error)
 	SetMark(request models.MarkPost) (err error)
+	Delete(request models.DeletePostRequest) (err error)
 }
 
 type postTransport interface {
@@ -20,9 +21,11 @@ type postTransport interface {
 
 	SetMarkDecode(ctx *fasthttp.RequestCtx) (request models.MarkPost, err error)
 	SetMarkEncode(ctx *fasthttp.RequestCtx) (err error)
+
+	DeletePostDecode(ctx *fasthttp.RequestCtx) (request models.DeletePostRequest, err error)
+	DeletePostEncode(ctx *fasthttp.RequestCtx) (err error)
 }
 
 type errorWorker interface {
-	ServeJSONError(ctx *fasthttp.RequestCtx, serveError error) (err error)
-	ServeFatalError(ctx *fasthttp.RequestCtx)
+	ServeJSONError(ctx *fasthttp.RequestCtx, serveError error)
 }
