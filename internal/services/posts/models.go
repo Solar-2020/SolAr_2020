@@ -3,6 +3,7 @@ package posts
 import (
 	account "github.com/Solar-2020/Account-Backend/pkg/models"
 	interviewModels "github.com/Solar-2020/Interview-Backend/pkg/models"
+	payment "github.com/Solar-2020/Payment-Backend/pkg/models"
 	"github.com/Solar-2020/SolAr_Backend_2020/internal/models"
 	"github.com/pkg/errors"
 	"strconv"
@@ -61,8 +62,8 @@ type interviewStorage interface {
 }
 
 type paymentClient interface {
-	Create(createRequest models.CreateRequest) (createdPayments []models.Payment, err error)
-	GetByPostIDs(postIDs []int) (payments []models.Payment, err error)
+	Create(createRequest payment.CreateRequest) (createdPayments []payment.Payment, err error)
+	GetByPostIDs(postIDs []int) (payments []payment.Payment, err error)
 }
 
 type groupClient interface {
