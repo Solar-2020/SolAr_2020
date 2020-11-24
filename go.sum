@@ -36,6 +36,8 @@ github.com/Solar-2020/Interview-Backend v1.0.0 h1:oEZa2BpbheNUaoPKrvKh2a7POCfmEx
 github.com/Solar-2020/Interview-Backend v1.0.0/go.mod h1:b9xSkDQ2eiCm9UsuVODwF2cA1SDolBFaAdQOiDfgMAE=
 github.com/Solar-2020/Payment-Backend v1.0.0 h1:VnO/IwQ0m7DFOQbpP8Q7sQHyzT+SqazjWW8k7DiWib8=
 github.com/Solar-2020/Payment-Backend v1.0.0/go.mod h1:bIG/cEUZ44C5GqQbirUS2JROsCOqTnet1oE4131r3GE=
+github.com/Solar-2020/Payment-Backend v1.0.1 h1:CZd+FlaXcfYq/XzUJR5P1VYxXCb1FG7n9O5OL5RogtM=
+github.com/Solar-2020/Payment-Backend v1.0.1/go.mod h1:mINPMcHhq3peuLGK/YuhiCXguY/Yv3VXGh4gCzyj2ho=
 github.com/Solar-2020/SolAr_Backend_2020 v0.0.0-20201113134828-1cf001fb9863/go.mod h1:ls96VQYNV0zPtYdeUjEIDcGM41pusHNOxmzivhJnBuY=
 github.com/VividCortex/gohistogram v1.0.0/go.mod h1:Pf5mBqqDxYaXu3hDrrU+w6nw50o/4+TcAqDqk/vUH7g=
 github.com/afex/hystrix-go v0.0.0-20180502004556-fa1af6a1f4f5/go.mod h1:SkGFH1ia65gfNATL8TAiHDNxPzPdmEL5uirI2Uyuz6c=
