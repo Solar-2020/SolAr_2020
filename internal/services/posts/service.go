@@ -3,6 +3,7 @@ package posts
 import (
 	account "github.com/Solar-2020/Account-Backend/pkg/models"
 	interviewModels "github.com/Solar-2020/Interview-Backend/pkg/models"
+	payment "github.com/Solar-2020/Payment-Backend/pkg/models"
 	"github.com/Solar-2020/SolAr_Backend_2020/internal/models"
 	"github.com/pkg/errors"
 	"github.com/valyala/fasthttp"
@@ -67,7 +68,7 @@ func (s *service) Create(request models.InputPost) (response models.Post, err er
 		return
 	}
 
-	createRequest := models.CreateRequest{
+	createRequest := payment.CreateRequest{
 		CreateBy: request.CreateBy,
 		GroupID:  request.GroupID,
 		PostID:   response.ID,
@@ -164,7 +165,7 @@ func (s *service) GetList(request models.GetPostListRequest) (response []models.
 			Photos:      make([]models.Photo, 0),
 			Files:       make([]models.File, 0),
 			Interviews:  make([]interviewModels.InterviewResult, 0),
-			Payments:    make([]models.Payment, 0),
+			Payments:    make([]payment.Payment, 0),
 			Order:       index,
 			Marked:      post.Marked,
 		}

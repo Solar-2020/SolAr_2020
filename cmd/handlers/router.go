@@ -2,6 +2,7 @@ package handlers
 
 import (
 	httputils "github.com/Solar-2020/GoUtils/http"
+	"github.com/Solar-2020/SolAr_Backend_2020/cmd/handlers/middleware"
 	postsHandler "github.com/Solar-2020/SolAr_Backend_2020/cmd/handlers/posts"
 	uploadHandler "github.com/Solar-2020/SolAr_Backend_2020/cmd/handlers/upload"
 	"github.com/Solar-2020/SolAr_Backend_2020/internal/metrics"
@@ -11,7 +12,7 @@ import (
 	"github.com/valyala/fasthttp/fasthttpadaptor"
 )
 
-func NewFastHttpRouter(posts postsHandler.Handler, upload uploadHandler.Handler, middleware Middleware) *fasthttprouter.Router {
+func NewFastHttpRouter(posts postsHandler.Handler, upload uploadHandler.Handler, middleware middleware.Middleware) *fasthttprouter.Router {
 	router := fasthttprouter.New()
 
 	router.PanicHandler = httputils.PanicHandler

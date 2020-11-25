@@ -17,4 +17,5 @@ type config struct {
 	PaymentServiceAddress          string `envconfig:"PAYMENT_SERVICE_ADDRESS" default:"develop.pay-together.ru"`
 	GroupServiceHost               string `envconfig:"GROUP_SERVICE_HOST" default:"develop.pay-together.ru"`
 	AccountServiceHost             string `envconfig:"ACCOUNT_SERVICE_HOST" default:"develop.pay-together.ru"`
+	AuthorizationServiceHost       string `envconfig:"AUTHORIZATION_SERVICE_HOST" default:"develop.pay-together.ru"`
 }

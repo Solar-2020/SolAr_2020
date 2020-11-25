@@ -1,8 +1,7 @@
-package handlers
+package middleware
 
 import (
-	"github.com/Solar-2020/GoUtils/log"
-	"github.com/Solar-2020/SolAr_Backend_2020/internal/clients/auth"
+	"github.com/Solar-2020/GoUtils/http/errorWorker"
 	"github.com/Solar-2020/SolAr_Backend_2020/internal/metrics"
 	"github.com/rs/zerolog"
 	"github.com/valyala/fasthttp"
@@ -18,10 +17,10 @@ type Middleware interface {
 
 type middleware struct {
 	log        *zerolog.Logger
-	authClient auth.Client
+	authClient authClient
 }
 
-func NewMiddleware(log *zerolog.Logger, authClient auth.Client) Middleware {
+func NewMiddleware(log *zerolog.Logger, authClient authClient) Middleware {
 	return &middleware{
 		log:        log,
 		authClient: authClient,
@@ -30,25 +29,25 @@ func NewMiddleware(log *zerolog.Logger, authClient auth.Client) Middleware {
 
 func (m middleware) Log(next fasthttp.RequestHandler) fasthttp.RequestHandler {
 	return func(ctx *fasthttp.RequestCtx) {
-		logger := log.NewLog()
-		log.Set(ctx, &logger)
-		logger.Println(ctx, "Start new request: ", ctx.Request.URI())
-		if len(ctx.Request.String()) < 1024 {
-			logger.Println(ctx, ctx.Request.String())
-		}
-
 		defer func(begin time.Time) {
 			execTime := time.Since(begin).Milliseconds()
-			logger.Printf(
-				ctx,
-				"End: %s, status: %d, time: %d ms",
-				ctx.Request.URI().String(),
-				ctx.Response.StatusCode(),
-				execTime,
-			)
+			if ctx.Value("error") != nil {
+				responseError := ctx.Value("error").(errorWorker.ResponseError)
+				errLog := m.log.Error()
+				errLog.
+					Time("request start", begin).
+					Int64("request duration", execTime).
+					Str("request", string(ctx.Request.Body())).
+					Int("code", ctx.Response.StatusCode()).
+					Str("front msg", string(ctx.Response.Body())).
+					Str("full error", responseError.FullError().Error())
+				errLog.Send()
+			}
+			// else m.log.Info() если нет ошибки и хочешь залоггировать все запросы. Реквест можно вытащить и в конце запроса,
+			// если нужны доп поля, то их всегда можно в хендлере положить контекст и вытащить тут из него
 
-			path := string(ctx.Request.URI().Path()) + " " +  string(ctx.Request.Header.Method())
-				metrics.Hits.
+			path := string(ctx.Request.URI().Path()) + " " + string(ctx.Request.Header.Method())
+			metrics.Hits.
 				WithLabelValues(path, strconv.Itoa(ctx.Response.StatusCode())).
 				Inc()
 			metrics.ResponseTime.WithLabelValues(path).Observe(float64(execTime))
