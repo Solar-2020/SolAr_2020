@@ -32,6 +32,7 @@ var (
 	ErrorPaymentsLimit   = errors.New("Превышен лимит платежей равный " + strconv.Itoa(PaymentsLimit))
 	ErrorFilesNotFound   = errors.New("Выбранные файлы не найдены")
 	ErrorPhotosNotFound  = errors.New("Выбранные фотографии не найдены")
+	ErrorEmptyPost		 = errors.New("Нельзя создать пустой пост")
 )
 
 type postStorage interface {

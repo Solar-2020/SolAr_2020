@@ -5,7 +5,7 @@ go 1.14
 require (
 	github.com/Solar-2020/Account-Backend v1.0.5
 	github.com/Solar-2020/Authorization-Backend v1.0.4
-	github.com/Solar-2020/GoUtils v1.0.4
+	github.com/Solar-2020/GoUtils v1.0.5
 	github.com/Solar-2020/Group-Backend v1.0.4
 	github.com/Solar-2020/Interview-Backend v1.0.0
 	github.com/Solar-2020/Payment-Backend v1.0.3

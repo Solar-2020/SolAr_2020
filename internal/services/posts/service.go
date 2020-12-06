@@ -90,6 +90,9 @@ func (s *service) Create(request models.InputPost) (response models.Post, err er
 }
 
 func (s *service) validateCreate(post models.InputPost) (err error) {
+	if post.Empty() {
+		return s.errorWorker.NewError(fasthttp.StatusBadRequest, ErrorEmptyPost, ErrorEmptyPost)
+	}
 	if len(post.Files) > FilesLimit {
 		return s.errorWorker.NewError(fasthttp.StatusBadRequest, ErrorFilesLimit, errors.Wrap(ErrorFilesLimit, strconv.Itoa(len(post.Files))))
 	}
