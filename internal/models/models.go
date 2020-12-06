@@ -47,6 +47,26 @@ type InputPost struct {
 	Marked      bool              `json:"marked"`
 }
 
+func (p *InputPost) Empty() (res bool) {
+	res = false
+	if p.Text != "" {
+		return
+	}
+	if p.Photos != nil && len(p.Photos) > 0 {
+		return
+	}
+	if p.Files != nil && len(p.Files) > 0 {
+		return
+	}
+	if p.Interviews != nil && len(p.Interviews) > 0 {
+		return
+	}
+	if p.Payments != nil && len(p.Payments) > 0 {
+		return
+	}
+	return true
+}
+
 type Post struct {
 	ID          int               `json:"id"`
 	CreateBy    int               `json:"-"`
